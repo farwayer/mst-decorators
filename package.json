@@ -1,0 +1,29 @@
+{
+  "name": "mst-decorators",
+  "version": "1.0.0",
+  "license": "WTFPL",
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.0.0-beta.44",
+    "lodash.defaults": "^4.2.0",
+    "lodash.pick": "^4.4.0"
+  },
+  "peerDependencies": {
+    "mobx-state-tree": "^2.0.4"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.44",
+    "@babel/core": "^7.0.0-beta.44",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.44",
+    "@babel/plugin-proposal-decorators": "^7.0.0-beta.44",
+    "@babel/plugin-transform-runtime": "^7.0.0-beta.44",
+    "@babel/preset-env": "^7.0.0-beta.44",
+    "@babel/register": "^7.0.0-beta.44",
+    "mobx": "^4.2.0",
+    "mobx-state-tree": "^2.0.4",
+    "mocha": "^5.1.1",
+    "node-fetch": "^2.1.2"
+  }
+}
