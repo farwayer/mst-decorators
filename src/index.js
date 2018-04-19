@@ -1,7 +1,7 @@
 import {types as mstTypes, flow as mstFlow} from 'mobx-state-tree'
 import defaults from 'lodash.defaults'
 import pick from 'lodash.pick'
-import {decorateProperty, decorateClass} from './decorate'
+import {decorateProperty, decorateClass, isPropertyDecorator} from './decorate'
 import {isFunction, setPrototypeOf, getPrototypeOf, identity} from './utils'
 
 
@@ -110,21 +110,19 @@ function propertyTagger(key) {
 }
 
 function createTypeDecorator(type) {
-  function decorator() {
-    return decorateProperty(arguments, (target, property, desc, ...args) => {
-      const propType = args.length
-        // check if any args is our decorators and translate it to mst mstTypes
-        // so we can do `@array(string) items = ...`
-        ? type(...args.map(arg => arg[TypeKey] || arg))
-        : type;
+  return bindDecoratorType(type, function decorator(...args) {
+    if (isPropertyDecorator(args)) {
+      return prop(this[TypeKey])(...args);
+    }
 
-      return prop(propType)(target, property, desc);
-    });
-  }
+    const decoratorType = type(...args.map(arg => arg[TypeKey] || arg));
+    return bindDecoratorType(decoratorType, decorator);
+  });
+}
 
-  // save mst type to decorator
-  decorator[TypeKey] = type;
-  return decorator;
+function bindDecoratorType(type, decorator) {
+  type = {[TypeKey]: type};
+  return Object.assign(decorator.bind(type), type);
 }
 
 function binder(fns, transform=identity) {
