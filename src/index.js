@@ -2,7 +2,10 @@ import {types as mstTypes, flow as mstFlow} from 'mobx-state-tree'
 import defaults from 'lodash.defaults'
 import pick from 'lodash.pick'
 import {decorateProperty, decorateClass, isPropertyDecorator} from './decorate'
-import {isFunction, setPrototypeOf, getPrototypeOf, identity} from './utils'
+import {
+  setPrototypeOf, getPrototypeOf, getOwnPropertyDescriptors,
+  identity, setterName, isFunction, isDefined,
+} from './utils'
 
 
 const TypeKey = getTagKey('type');
@@ -34,7 +37,7 @@ export function model() {
 
     let views = extractTaggedProp(Class, ViewsKey);
     if (views) {
-      const descs = Object.getOwnPropertyDescriptors(getPrototypeOf(values));
+      const descs = getOwnPropertyDescriptors(getPrototypeOf(values));
       views = pick(descs, views);
     }
 
@@ -63,8 +66,9 @@ export function model() {
 }
 
 export function prop() {
-  return decorateProperty(arguments, (target, property, desc, type) => {
-    target[PropsKey] = {...target[PropsKey], [property]: type};
+  return decorateProperty(arguments, (target, prop, desc, type) => {
+    if (type && type[TypeKey]) type = type[TypeKey];
+    target[PropsKey] = {...target[PropsKey], [prop]: type};
   });
 }
 
@@ -100,6 +104,25 @@ export const types = {
   late, model: _model, undefined: _undefined, null: _null,
 };
 
+export function setter() {
+  return decorateProperty(arguments, (target, prop, desc, name, customValue) => {
+    if (isFunction(name)) {customValue = name; name = undefined;}
+    name = name || setterName(prop);
+
+    target[name] = function (value) {
+      if (isDefined(customValue)) {
+        value = isFunction(customValue)
+          ? customValue.call(this, value)
+          : customValue;
+      }
+
+      this[prop] = value;
+    };
+
+    action(target, name, {});
+  })
+}
+
 
 function propertyTagger(key) {
   return (...args) => {
@@ -112,7 +135,7 @@ function propertyTagger(key) {
 function createTypeDecorator(type) {
   return bindDecoratorType(type, function decorator(...args) {
     if (isPropertyDecorator(args)) {
-      return prop(this[TypeKey])(...args);
+      return prop(this)(...args);
     }
 
     const decoratorType = type(...args.map(arg => arg[TypeKey] || arg));
