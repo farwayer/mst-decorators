@@ -67,6 +67,7 @@ export function model() {
 
     return Object.assign(Constructor, {
       create: Model.create.bind(Model),
+      is: Model.is.bind(Model),
       [TypeKey]: Model,
     });
   });
