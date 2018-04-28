@@ -58,7 +58,14 @@ export function model() {
       afterCreate: () => setPrototypeOf(obj, Class.prototype),
     }));
 
-    return Object.assign(Class, {
+    const modelDecorator = prop(Model);
+    const Constructor = setPrototypeOf((...args) => {
+      return isPropertyDecorator(args)
+        ? modelDecorator(...args)
+        : Model.create(...args);
+    }, Class);
+
+    return Object.assign(Constructor, {
       create: Model.create.bind(Model),
       [TypeKey]: Model,
     });
