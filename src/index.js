@@ -98,10 +98,17 @@ export const late = createTypeDecorator(mstTypes.late);
 export const _model = createTypeDecorator(mstTypes.model);
 export const _undefined = createTypeDecorator(mstTypes.undefined);
 export const _null = createTypeDecorator(mstTypes.null);
+export const ref = reference; // alias
+export const id = identifier; // alias
+export const str = string; // alias
+export const num = number; // alias
+export const opt = optional; // alias
+export const bool = boolean; // alias
 export const types = {
   enumeration, compose, custom, reference, union, optional, literal, maybe,
   refinement, string, boolean, number, date, map, array, frozen, identifier,
   late, model: _model, undefined: _undefined, null: _null,
+  ref, id, str, num, opt, bool,
 };
 
 export function setter() {
