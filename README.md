@@ -3,7 +3,7 @@
 Class based MobX-State-Tree definitions.
 
 Some features:
-- simple syntax without need to use extra helpers etc. Just decorators
+- simple syntax without need to use extra helpers etc, just decorators
 - es6 extending
 - access to instance via `this`
 - `@view`, `@action`, `@flow`, `@volatile` decorators
