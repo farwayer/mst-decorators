@@ -7,12 +7,20 @@ Some features:
 - es6 extending
 - access to instance via `this`
 - `@view`, `@action`, `@flow`, `@volatile` decorators
-- use model class as decorator in another (`@Location`)
+- model class is decorator so it can be used in another model (`@Location`)
 - late definition for recursive models (`@late(() => ref(Category)) topCategory`)
 - `preProcessSnapshot`/`postProcessSnapshot` as static class methods
 - can specify `onPatch`/`onSnapshot`/`onAction` just in class
 - lifecycle hook actions, composing and `getEnv()` works as well
 - several extra decorators: `@jsonDate`, `@setter`
+- result of decorator function is decorator. Feel power in constructing types!
+```js
+@model class User {}
+const Author = maybe(ref(User))
+@model class Message {
+  @Author author
+}
+```
 
 ## How to use
 
