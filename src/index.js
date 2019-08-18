@@ -1,177 +1,230 @@
-import {types as mstTypes, flow as mstFlow} from 'mobx-state-tree'
-import defaults from 'lodash.defaults'
-import pick from 'lodash.pick'
-import {decorateProperty, decorateClass, isPropertyDecorator} from './decorate'
 import {
-  setPrototypeOf, getPrototypeOf, getOwnPropertyDescriptors,
-  identity, setterName, isFunction, isDefined,
-} from './utils'
+  types as mstTypes,
+  flow as mstFlow,
+  clone as mstClone,
+  onSnapshot as mstOnSnapshot,
+  onPatch as mstOnPatch,
+  onAction as mstOnAction,
+} from 'mobx-state-tree'
+import {merge, pick} from 'rambda'
+import {propertyDecorator, classDecorator, isPropertyDecorator} from 'decorating'
+import {setPrototypeOf, getOwnPropertyDescriptors, identity, capitalize} from './utils'
+import * as is from './is'
 
 
-const TypeKey = getTagKey('type');
-const PropsKey = getTagKey('props');
-const ActionsKey = getTagKey('actions');
-const FlowsKey = getTagKey('flows');
-const ViewsKey = getTagKey('views');
-const VolatilesKey = getTagKey('volatiles');
+const TypeKey = tagKey('type')
+const PropsKey = tagKey('props')
+const ActionsKey = tagKey('actions')
+const FlowsKey = tagKey('flows')
+const ViewsKey = tagKey('views')
+const VolatilesKey = tagKey('volatiles')
 
 
-export function model() {
-  return decorateClass(arguments, (Class, name=Class.name) => {
-    const {preProcessSnapshot} = Class;
-    // TS class property initializers and defaults from constructor
-    const values = new Class();
+export const model = classDecorator((Class, name=Class.name) => {
+  const {preProcessSnapshot, postProcessSnapshot} = Class
+  // TS class property initializers and defaults from constructor
+  const values = new Class()
+  const {onSnapshot, onPatch, onAction} = values;
 
-    let props = extractTaggedProp(Class, PropsKey) || {};
-    const propValues = pick(values, Object.keys(props));
-    props = defaults(props, propValues); // mst primitives
+  const props = extractTaggedProps(Class, PropsKey) || {}
+  Object.values(props).forEach(({property, args}) => {
+    let type = args[0]
+    if (type && type[TypeKey]) type = type[TypeKey]
+    props[property] = is.def(type) ? type : values[property]
+  })
 
-    let actions = extractTaggedProp(Class, ActionsKey);
-    actions = actions && pick(values, actions);
+  let actions = extractTaggedPropNames(Class, ActionsKey)
+  actions = actions && pick(actions, values)
 
-    let volatile = extractTaggedProp(Class, VolatilesKey);
-    volatile = volatile && pick(values, volatile);
+  let volatile = extractTaggedPropNames(Class, VolatilesKey)
+  volatile = volatile && pick(volatile, values)
 
-    let flows = extractTaggedProp(Class, FlowsKey);
-    flows = flows && pick(values, flows);
+  let flows = extractTaggedPropNames(Class, FlowsKey)
+  flows = flows && pick(flows, values)
 
-    let views = extractTaggedProp(Class, ViewsKey);
-    if (views) {
-      const descs = getOwnPropertyDescriptors(getPrototypeOf(values));
-      views = pick(descs, views);
+  let views = extractTaggedPropNames(Class, ViewsKey)
+  if (views) {
+    const descs = getOwnPropertyDescriptors(Class.prototype)
+    views = pick(views, descs)
+  }
+
+  let Model = Class[TypeKey]
+    ? Class[TypeKey].named(name).props(props)  // extend base model
+    : mstTypes.model(name, props)
+  Model = volatile ? Model.volatile(() => volatile) : Model
+  Model = actions ? Model.actions(binder(actions)) : Model
+  Model = flows ? Model.actions(binder(flows, mstFlow)) : Model
+  Model = views ? Model.views(viewBinder(views)) : Model
+
+  Model = Model.preProcessSnapshot(snapshot => {
+    snapshot = preProcessSnapshot ? preProcessSnapshot(snapshot) : snapshot
+    return merge(values, snapshot)
+  })
+
+  if (postProcessSnapshot) {
+    Model = Model.postProcessSnapshot(postProcessSnapshot)
+  }
+
+  Model = Model.actions(obj => ({
+    afterCreate() {
+      if (onSnapshot) mstOnSnapshot(obj, onSnapshot.bind(obj))
+      if (onPatch) mstOnPatch(obj, onPatch.bind(obj))
+      if (onAction) mstOnAction(obj, onAction.bind(obj))
+    }
+  }))
+
+  const modelDecorator = prop(Model)
+  const Constructor = assignType(Model, function (...args) {
+    if (isPropertyDecorator(args)) {
+      return modelDecorator(...args)
     }
 
-    let Model = Class[TypeKey]
-      ? Class[TypeKey].named(name).props(props)  // extend base model
-      : mstTypes.model(name, props);
-    Model = volatile ? Model.volatile(() => volatile) : Model;
-    Model = actions ? Model.actions(binder(actions)) : Model;
-    Model = flows ? Model.actions(binder(flows, mstFlow)) : Model;
-    Model = views ? Model.views(viewBinder(views)) : Model;
+    if (this instanceof Constructor) {
+      throw new Error(`You should use ${name}.create() to instantiate object`)
+    }
+  })
 
-    Model = Model.preProcessSnapshot(snapshot => {
-      snapshot = defaults(snapshot, values);
-      return preProcessSnapshot ? preProcessSnapshot(snapshot) : snapshot;
-    });
+  return setPrototypeOf(Constructor, Class)
+})
 
-    Model = Model.actions(obj => ({
-      afterCreate: () => setPrototypeOf(obj, Class.prototype),
-    }));
+export const prop = propertyTagger(PropsKey)
+export const action = propertyTagger(ActionsKey)
+export const volatile = propertyTagger(VolatilesKey)
+export const flow = propertyTagger(FlowsKey)
+export const view = propertyTagger(ViewsKey)
 
-    const modelDecorator = prop(Model);
-    const Constructor = setPrototypeOf((...args) => {
-      return isPropertyDecorator(args)
-        ? modelDecorator(...args)
-        : Model.create(...args);
-    }, Class);
-
-    return Object.assign(Constructor, {
-      create: Model.create.bind(Model),
-      is: Model.is.bind(Model),
-      [TypeKey]: Model,
-    });
-  });
-}
-
-export function prop() {
-  return decorateProperty(arguments, (target, prop, desc, type) => {
-    if (type && type[TypeKey]) type = type[TypeKey];
-    target[PropsKey] = {...target[PropsKey], [prop]: type};
-  });
-}
-
-export const action = propertyTagger(ActionsKey);
-export const volatile = propertyTagger(VolatilesKey);
-export const flow = propertyTagger(FlowsKey);
-export const view = propertyTagger(ViewsKey);
-
-export const enumeration = createTypeDecorator(mstTypes.enumeration);
-export const compose = createTypeDecorator(mstTypes.compose);
-export const custom = createTypeDecorator(mstTypes.custom);
-export const reference = createTypeDecorator(mstTypes.reference);
-export const union = createTypeDecorator(mstTypes.union);
-export const optional = createTypeDecorator(mstTypes.optional);
-export const literal = createTypeDecorator(mstTypes.literal);
-export const maybe = createTypeDecorator(mstTypes.maybe);
-export const refinement = createTypeDecorator(mstTypes.refinement);
-export const string = createTypeDecorator(mstTypes.string);
-export const boolean = createTypeDecorator(mstTypes.boolean);
-export const number = createTypeDecorator(mstTypes.number);
-export const date = createTypeDecorator(mstTypes.Date);
-export const map = createTypeDecorator(mstTypes.map);
-export const array = createTypeDecorator(mstTypes.array);
-export const frozen = createTypeDecorator(mstTypes.frozen);
-export const identifier = createTypeDecorator(mstTypes.identifier);
-export const late = createTypeDecorator(mstTypes.late);
-export const _model = createTypeDecorator(mstTypes.model);
-export const _undefined = createTypeDecorator(mstTypes.undefined);
-export const _null = createTypeDecorator(mstTypes.null);
-export const ref = reference; // alias
-export const id = identifier; // alias
-export const str = string; // alias
-export const num = number; // alias
-export const opt = optional; // alias
-export const bool = boolean; // alias
+export const enumeration = createTypeDecorator(mstTypes.enumeration)
+export const compose = createTypeDecorator(mstTypes.compose)
+export const custom = createTypeDecorator(mstTypes.custom)
+export const snapshotProcessor = createTypeDecorator(mstTypes.snapshotProcessor)
+export const reference = createTypeDecorator(mstTypes.reference)
+export const safeReference = createTypeDecorator(mstTypes.safeReference)
+export const union = createTypeDecorator(mstTypes.union)
+export const optional = createTypeDecorator(mstTypes.optional)
+export const literal = createTypeDecorator(mstTypes.literal)
+export const maybe = createTypeDecorator(mstTypes.maybe)
+export const maybeNull = createTypeDecorator(mstTypes.maybeNull)
+export const refinement = createTypeDecorator(mstTypes.refinement)
+export const string = createTypeDecorator(mstTypes.string)
+export const boolean = createTypeDecorator(mstTypes.boolean)
+export const number = createTypeDecorator(mstTypes.number)
+export const integer = createTypeDecorator(mstTypes.integer)
+export const date = createTypeDecorator(mstTypes.Date)
+export const map = createTypeDecorator(mstTypes.map)
+export const array = createTypeDecorator(mstTypes.array)
+export const frozen = createTypeDecorator(mstTypes.frozen)
+export const identifier = createTypeDecorator(mstTypes.identifier)
+export const identifierNumber = createTypeDecorator(mstTypes.identifierNumber)
+export const _model = createTypeDecorator(mstTypes.model)
+export const _undefined = createTypeDecorator(mstTypes.undefined)
+export const _null = createTypeDecorator(mstTypes.null)
+export const late = createTypeDecorator(mstTypes.late, getDef => () => {
+  const def = getDef()
+  return def[TypeKey] || def
+})
+export const undef = _undefined // alias
+export const nul = _null // alias
+export const ref = reference // alias
+export const safeRef = safeReference // alias
+export const id = identifier // alias
+export const idNum = identifierNumber // alias
+export const str = string // alias
+export const num = number // alias
+export const int = integer // alias
+export const opt = optional // alias
+export const bool = boolean // alias
+export const snapProc = snapshotProcessor // alias
+export const jsonDate = custom({
+  name: 'JSONDate',
+  fromSnapshot: val => is.str(val) || is.int(val) ? new Date(val) : val,
+  toSnapshot: date => date.toJSON(),
+  isTargetType: date => date instanceof Date,
+  getValidationMessage: val => is.nul(val) || !is.def(val)
+    ? "null or undefined is not a valid value for JSONDate"
+    : "",
+})
 export const types = {
   enumeration, compose, custom, reference, union, optional, literal, maybe,
-  refinement, string, boolean, number, date, map, array, frozen, identifier,
-  late, model: _model, undefined: _undefined, null: _null,
-  ref, id, str, num, opt, bool,
-};
+  maybeNull, refinement, string, boolean, number, date, map, array, frozen,
+  identifier, identifierNumber, late, model: _model, undefined: _undefined,
+  null: _null, nul, undef, ref, id, idNum, str, num, opt, bool, jsonDate,
+}
 
-export function setter() {
-  return decorateProperty(arguments, (target, prop, desc, name, customValue) => {
-    if (isFunction(name)) {customValue = name; name = undefined;}
-    name = name || setterName(prop);
+export const setter = propertyDecorator((
+  target, prop, desc,
+  {
+    name = setterName(prop),
+    value: customValue,
+    clone,
+    keepEnvironment = false,
+  } = {},
+) => {
+  target[name] = function (value) {
+    if (is.def(customValue)) {
+      value = is.fn(customValue)
+        ? customValue.call(this, value)
+        : customValue
+    }
 
-    target[name] = function (value) {
-      if (isDefined(customValue)) {
-        value = isFunction(customValue)
-          ? customValue.call(this, value)
-          : customValue;
-      }
+    this[prop] = is.def(value) && clone
+      ? mstClone(value, keepEnvironment)
+      : value
+  }
 
-      this[prop] = value;
-    };
+  action(target, name, {})
+})
 
-    action(target, name, {});
-  })
+export function getMstType(type) {
+  return type[TypeKey]
 }
 
 
 function propertyTagger(key) {
-  return (...args) => {
-    return decorateProperty(args, (target, property) => {
-      target[key] = (target[key] || []).concat(property);
-    });
-  }
+  return propertyDecorator((target, property, desc, ...args) => {
+    target[key] = target[key] || {}
+    target[key][property] = {target, property, desc, args}
+  })
 }
 
-function createTypeDecorator(type) {
-  return bindDecoratorType(type, function decorator(...args) {
+function createTypeDecorator(
+  type,
+  transformArg = arg => arg && arg[TypeKey] || arg,
+) {
+  return assignType(type, function decorator(...args) {
     if (isPropertyDecorator(args)) {
-      return prop(this)(...args);
+      return prop(this)(...args)
     }
 
-    const decoratorType = type(...args.map(arg => arg[TypeKey] || arg));
-    return bindDecoratorType(decoratorType, decorator);
-  });
+    const decoratorType = is.fn(type)
+      ? type(...args.map(transformArg))
+      : type
+    return assignType(decoratorType, decorator)
+  })
 }
 
-function bindDecoratorType(type, decorator) {
-  type = {[TypeKey]: type};
-  return Object.assign(decorator.bind(type), type);
+function assignType(type, fn) {
+  type = {
+    [TypeKey]: type,
+    create: type.create && type.create.bind(type),
+    is: type.is && type.is.bind(type),
+    validate: type.validate && type.validate.bind(type),
+    instantiate: type.instantiate && type.instantiate.bind(type),
+    actions: type.actions && type.actions.bind(type),
+    views: type.views && type.views.bind(type),
+    volatile: type.volatile && type.volatile.bind(type),
+  }
+  return Object.assign(fn.bind(type), type)
 }
 
 function binder(fns, transform=identity) {
   return obj => (
     Object.entries(fns).reduce((fns, [fnName, fn]) => {
-      if (!isFunction(fn)) {
-        throw new Error(`${fnName} must be function`);
+      if (!is.fn(fn)) {
+        throw new Error(`${fnName} must be function`)
       }
 
-      fns[fnName] = transform(fn.bind(obj));
-      return fns;
+      fns[fnName] = transform(fn.bind(obj))
+      return fns
     }, {})
   )
 }
@@ -179,28 +232,38 @@ function binder(fns, transform=identity) {
 function viewBinder(descs) {
   return obj => (
     Object.entries(descs).reduce((fns, [name, desc]) => {
-      desc = descBind(obj, desc, 'get');
-      desc = descBind(obj, desc, 'set');
-      desc = descBind(obj, desc, 'value');
-      desc = {...desc, enumerable: true};
-      return Object.defineProperty(fns, name, desc);
+      desc = descBind(obj, desc, 'get')
+      desc = descBind(obj, desc, 'set')
+      desc = descBind(obj, desc, 'value')
+      desc = {...desc, enumerable: true}
+      return Object.defineProperty(fns, name, desc)
     }, {})
   )
 }
 
 function descBind(obj, desc, fnName) {
-  const fn = desc[fnName];
-  if (!isFunction(fn)) return desc;
-  return {...desc, [fnName]: fn.bind(obj)};
+  const fn = desc[fnName]
+  if (!is.fn(fn)) return desc
+  return {...desc, [fnName]: fn.bind(obj)}
 }
 
-function getTagKey(tag) {
-  return `__mst_decorators_${tag}`;
+function tagKey(tag) {
+  return `__mst_decorators_${tag}`
 }
 
-function extractTaggedProp(Class, key) {
-  const proto = Class.prototype;
-  const props = proto[key];
-  delete proto[key];
-  return props;
+export function setterName(prop, prefix = 'set') {
+  const Name = capitalize(prop);
+  return prefix + Name;
+}
+
+function extractTaggedProps(Class, key) {
+  const proto = Class.prototype
+  const props = proto[key]
+  delete proto[key]
+  return props
+}
+
+function extractTaggedPropNames(Class, key) {
+  const props = extractTaggedProps(Class, key)
+  return props && Object.keys(props)
 }

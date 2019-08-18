@@ -1,11 +1,3 @@
-export function getPrototypeOf(target) {
-  if (Object.getPrototypeOf) {
-    return Object.getPrototypeOf(target);
-  }
-
-  return target.__proto__;
-}
-
 export function setPrototypeOf(target, proto) {
   if (Object.setPrototypeOf) {
     return Object.setPrototypeOf(target, proto);
@@ -26,29 +18,8 @@ export function getOwnPropertyDescriptors(obj) {
   }, {});
 }
 
-export function isFunction(fn) {
-  return typeof fn === 'function';
-}
-
-export function isObject(obj) {
-  return typeof obj === 'object';
-}
-
-export function isString(str) {
-  return typeof str === 'string';
-}
-
-export function isDefined(val) {
-  return val !== undefined;
-}
-
 export function identity(val) {
   return val;
-}
-
-export function setterName(prop, prefix = 'set') {
-  const Name = capitalize(prop);
-  return prefix + Name;
 }
 
 export function capitalize(str) {
