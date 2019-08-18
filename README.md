@@ -54,13 +54,19 @@ import {
   @num lat
 }
 
+const Sender = maybe(ref(User))
+
 @model class Message {
   @id id
-  @ref(User) sender
+  @Sender sender
   @str text
   @jsonDate date
   @bool unread
-  @Location location
+  @model(class {
+    @Location location
+    @array(str) files
+    @array(str) images
+  }) attachments
 
   static preProcessSnapshot(snap) {
     //...
