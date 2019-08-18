@@ -2,3 +2,4 @@
 babel.config.js
 .npmignore
 yarn-error.log
+test/
