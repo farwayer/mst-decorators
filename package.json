@@ -1,6 +1,6 @@
 {
   "name": "mst-decorators",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "WTFPL",
   "description": "Class based MobX-State-Tree definitions",
   "repository": "farwayer/mst-decorators",
@@ -34,5 +34,11 @@
     "mobx": "^5.13.0",
     "mobx-state-tree": "^3.14.1",
     "mocha": "^6.2.0"
-  }
+  },
+  "keywords": [
+    "mobx",
+    "mobx-state-tree",
+    "decorators",
+    "class"
+  ]
 }
