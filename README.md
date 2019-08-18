@@ -14,13 +14,6 @@ Some features:
 - lifecycle hook actions, composing and `getEnv()` works as well
 - several extra decorators: `@jsonDate`, `@setter`
 - result of decorator function is decorator. Feel power in constructing types!
-```js
-@model class User {}
-const Author = maybe(ref(User))
-@model class Message {
-  @Author author
-}
-```
 
 ## How to use
 
