@@ -1,6 +1,6 @@
 {
   "name": "mst-decorators",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "license": "WTFPL",
   "description": "Class based MobX-State-Tree definitions",
   "repository": "farwayer/mst-decorators",
@@ -21,7 +21,7 @@
     "rambda": "^2.14.5"
   },
   "peerDependencies": {
-    "mobx-state-tree": "^2.0.4"
+    "mobx-state-tree": "^2"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
