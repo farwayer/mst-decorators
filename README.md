@@ -61,7 +61,7 @@ const Sender = maybe(ref(User))
   @Sender sender
   @str text
   @jsonDate date
-  @bool unread
+  @bool unread = true
   @model(class {
     @Location location
     @array(str) files
