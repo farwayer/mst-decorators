@@ -24,7 +24,7 @@ export const model = classDecorator((Class, name=Class.name) => {
   const {preProcessSnapshot, postProcessSnapshot} = Class
   // TS class property initializers and defaults from constructor
   const values = new Class()
-  const {onSnapshot, onPatch, onAction} = values;
+  const {onSnapshot, onPatch, onAction} = values
 
   const props = extractTaggedProps(Class, PropsKey) || {}
   Object.values(props).forEach(({property, args}) => {
@@ -145,9 +145,10 @@ export const jsonDate = custom({
 })
 export const types = {
   enumeration, compose, custom, reference, union, optional, literal, maybe,
-  maybeNull, refinement, string, boolean, number, date, map, array, frozen,
-  identifier, identifierNumber, late, model: _model, undefined: _undefined,
-  null: _null, nul, undef, ref, id, idNum, str, num, opt, bool, jsonDate,
+  maybeNull, refinement, string, boolean, number, integer, date, map, array,
+  frozen, identifier, identifierNumber, late, model: _model,
+  undefined: _undefined, null: _null, nul, undef, ref, id, idNum, str, num,
+  int, opt, bool, jsonDate,
 }
 
 export const setter = propertyDecorator((
@@ -252,8 +253,8 @@ function tagKey(tag) {
 }
 
 export function setterName(prop, prefix = 'set') {
-  const Name = capitalize(prop);
-  return prefix + Name;
+  const Name = capitalize(prop)
+  return prefix + Name
 }
 
 function extractTaggedProps(Class, key) {
