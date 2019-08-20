@@ -58,6 +58,7 @@ export const model = classDecorator((Class, name=Class.name) => {
 
   Model = Model.preProcessSnapshot(snapshot => {
     snapshot = preProcessSnapshot ? preProcessSnapshot(snapshot) : snapshot
+    if (!is.obj(snapshot)) return snapshot
     return merge(values, snapshot)
   })
 
