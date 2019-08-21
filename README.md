@@ -46,6 +46,7 @@ import {model, view, ref, bool, array, map, maybe, id, str, jsonDate} from 'mst-
   }
 
   // view with parameter
+  // we need @view to distinguish it from actions
   @view prefixName(prefix) {
     return `${prefix} ${this.fullName}`
   }
@@ -68,7 +69,7 @@ const Sender = maybe(ref(User))
   @Sender sender
   @str text
   @jsonDate date
-  @bool unread = true
+  @bool unread = true // default value
   @model(class {
     @maybe(Location) location
     @array(str) files
@@ -82,6 +83,8 @@ const Sender = maybe(ref(User))
     //...
   }
   
+  // attach watchers to model instance
+  // they are not actions so you can't modify state tree here
   onPatch(patch, reversePatch) {
     //...
   }
@@ -98,7 +101,7 @@ const Sender = maybe(ref(User))
   @array(Message) messages
   @map(User) users
 
-  api = undefined // volatile
+  api = undefined // volatile; you should set any value (!)
 
   // lifecycle hook action
   afterCreate() {
