@@ -5,7 +5,6 @@ Class based MobX-State-Tree definitions.
 Some features:
 - simple syntax without need to use extra helpers etc, just type decorators
 - es6 extending
-- access to instance via `this`
 - autodetect actions, flows, getters views, volatile
 - actions and flows auto-bind to model so you can pass it to callbacks without
 worrying about `this` context
