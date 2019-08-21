@@ -6,7 +6,9 @@ Some features:
 - simple syntax without need to use extra helpers etc, just decorators
 - es6 extending
 - access to instance via `this`
-- attach actions, flows, views, volatile automatically
+- autodetect actions, flows, getters views, volatile
+- actions and flows auto-bind to model so you can pass it to callbacks without
+worrying about `this` context
 - result of decorator function is decorator. Feel power in constructing types! 
 - model class is decorator so it can be used in another model (`@Location`)
 - late definition for recursive models (`@late(() => ref(Category)) topCategory`)
