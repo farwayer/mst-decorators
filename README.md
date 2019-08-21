@@ -120,8 +120,9 @@ chat.fetchMessages()
 
 ## TS
 
-Because class decorator can't modify type declaration in TS you should use
-`model` function instead `@model` decorator.
+Because class decorator
+[can't modify type declaration](https://github.com/microsoft/TypeScript/issues/4881)
+in TS you should use `model` function instead `@model` decorator.
 
 ```js
 class Message {
