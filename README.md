@@ -105,7 +105,7 @@ const Sender = maybe(ref(User))
 
   // lifecycle hook action
   afterCreate() {
-    this.api = getEnv(this)
+    this.api = getEnv(this).api
   }
 
   // flow
@@ -114,7 +114,7 @@ const Sender = maybe(ref(User))
   }
 }
 
-const chat = Chat.create({id: '1'})
+const chat = Chat.create({id: '1'}, {api})
 chat.fetchMessages()
 ```
 
