@@ -1152,9 +1152,9 @@ diff@^4.0.1:
   integrity sha512-s2+XdvhPCOF01LRQBC8hf4vhbVmI2CGS5aZnxLJlT5FtdhPCDFq80q++zK2KlrVorVDdL5BOGZ/VfLrVtYNF+Q==
 
 electron-to-chromium@^1.3.191:
-  version "1.3.234"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.234.tgz#38c7daca042de7c0f9ffe9882e98faf8e1ea2420"
-  integrity sha512-SVXY503NJLFAqBx8VdJaO47G+qUQggHgRjZnyjH9/SZ1w0CJpeBrEssNPk71TeKU8OGHdYjjNNHeJ6v+TJoCBg==
+  version "1.3.236"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.236.tgz#c7158cbd4d17a3670ac7c9b44da44d752aa193a9"
+  integrity sha512-LWOvuJ80pLO3FtFqTcGuXB0dxdMtzSCkRmbXdY5mHUvXRQGor3sTVmyfU70aD2yF5i+fbHz52ncWr5T3xUYHlA==
 
 emoji-regex@^7.0.1:
   version "7.0.3"
@@ -2286,10 +2286,10 @@ pump@^3.0.0:
     end-of-stream "^1.1.0"
     once "^1.3.1"
 
-rambda@^2.14.5:
-  version "2.14.5"
-  resolved "https://registry.yarnpkg.com/rambda/-/rambda-2.14.5.tgz#906cdd9b45c25883e45f4fdba15d984c79620c08"
-  integrity sha512-vYoUQ9bmWfKh6UvxIojk5/x91NcarecpiK+bJndyHg6KPzgtuMLmQ05jWMiRDLDblps1znByuhc6DbGtEuOqZw==
+rambda@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/rambda/-/rambda-3.0.0.tgz#3a72fe5c2ec8e3fa534c0da17ae356dd0324e6eb"
+  integrity sha512-3KUfVG9UYk9EGn1GN35Jlyf7SG+Z3pvwh7hLk3Z09/V/iCYkIWX27XjtGehctcVH0ndR5ZOf+Lv72xClZBKL9Q==
 
 rc@^1.2.7:
   version "1.2.8"

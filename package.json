@@ -18,7 +18,7 @@
   "dependencies": {
     "@babel/runtime": "^7.5.5",
     "decorating": "^1.1.0",
-    "rambda": "^2.14.5"
+    "rambda": "^3.0.0"
   },
   "peerDependencies": {
     "mobx-state-tree": "^2"
