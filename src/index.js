@@ -6,21 +6,21 @@ import {
   onPatch as mstOnPatch,
   onAction as mstOnAction,
 } from 'mobx-state-tree'
-import {merge, pick} from 'rambda'
+import {merge, pick, omit} from 'rambda'
 import {propertyDecorator, classDecorator, isPropertyDecorator} from 'decorating'
-import {setPrototypeOf, getOwnPropertyDescriptors, identity, capitalize} from './utils'
+import {setPrototypeOf, getOwnPropertyDescriptors, identity, capitalize, hasKeys} from './utils'
 import * as is from './is'
 
 
 const TypeKey = tagKey('type')
 const PropsKey = tagKey('props')
-const ActionsKey = tagKey('actions')
-const FlowsKey = tagKey('flows')
 const ViewsKey = tagKey('views')
-const VolatilesKey = tagKey('volatiles')
+const ExcludeKeys = [
+  'constructor', 'onPatch', 'onSnapshot', 'onAction',
+  TypeKey, PropsKey, ViewsKey,
+]
 
-
-export const model = classDecorator((Class, name=Class.name) => {
+export const model = classDecorator((Class, name = Class.name) => {
   const {preProcessSnapshot, postProcessSnapshot} = Class
   // TS class property initializers and defaults from constructor
   const values = new Class()
@@ -33,28 +33,33 @@ export const model = classDecorator((Class, name=Class.name) => {
     props[property] = is.def(type) ? type : values[property]
   })
 
-  let actions = extractTaggedPropNames(Class, ActionsKey)
-  actions = actions && pick(actions, values)
+  const propKeys = Object.keys(props)
+  const viewKeys = extractTaggedPropNames(Class, ViewsKey) || []
+  const ownKeys = Object.getOwnPropertyNames(values)
+  const omitKeys = ExcludeKeys.concat(propKeys).concat(viewKeys)
+  const descs = getOwnPropertyDescriptors(Class.prototype)
 
-  let volatile = extractTaggedPropNames(Class, VolatilesKey)
-  volatile = volatile && pick(volatile, values)
+  const views = pick(viewKeys, descs)
+  const volatile = omit(omitKeys, pick(ownKeys, values))
+  const actions = {}
+  const flows = {}
 
-  let flows = extractTaggedPropNames(Class, FlowsKey)
-  flows = flows && pick(flows, values)
-
-  let views = extractTaggedPropNames(Class, ViewsKey)
-  if (views) {
-    const descs = getOwnPropertyDescriptors(Class.prototype)
-    views = pick(views, descs)
-  }
+  Object.entries(descs)
+    .filter(([key]) => !omitKeys.includes(key))
+    .forEach(([key, desc]) => {
+      const {get, set, value} = desc
+      if (get || set) return views[key] = desc
+      if (is.gen(value)) return flows[key] = value
+      if (is.fn(value)) return actions[key] = value
+    })
 
   let Model = Class[TypeKey]
     ? Class[TypeKey].named(name).props(props)  // extend base model
     : mstTypes.model(name, props)
-  Model = volatile ? Model.volatile(() => volatile) : Model
-  Model = actions ? Model.actions(binder(actions)) : Model
-  Model = flows ? Model.actions(binder(flows, mstFlow)) : Model
-  Model = views ? Model.views(viewBinder(views)) : Model
+  Model = hasKeys(volatile) ? Model.volatile(() => volatile) : Model
+  Model = hasKeys(actions) ? Model.actions(binder(actions)) : Model
+  Model = hasKeys(flows) ? Model.actions(binder(flows, mstFlow)) : Model
+  Model = hasKeys(views) ? Model.views(viewBinder(views)) : Model
 
   Model = Model.preProcessSnapshot(snapshot => {
     snapshot = preProcessSnapshot ? preProcessSnapshot(snapshot) : snapshot
@@ -89,9 +94,6 @@ export const model = classDecorator((Class, name=Class.name) => {
 })
 
 export const prop = propertyTagger(PropsKey)
-export const action = propertyTagger(ActionsKey)
-export const volatile = propertyTagger(VolatilesKey)
-export const flow = propertyTagger(FlowsKey)
 export const view = propertyTagger(ViewsKey)
 
 export const enumeration = createTypeDecorator(mstTypes.enumeration)
@@ -172,8 +174,6 @@ export const setter = propertyDecorator((
       ? mstClone(value, keepEnvironment)
       : value
   }
-
-  action(target, name, {})
 })
 
 export function getMstType(type) {
@@ -218,7 +218,7 @@ function assignType(type, fn) {
   return Object.assign(fn.bind(type), type)
 }
 
-function binder(fns, transform=identity) {
+function binder(fns, transform = identity) {
   return obj => (
     Object.entries(fns).reduce((fns, [fnName, fn]) => {
       if (!is.fn(fn)) {
@@ -233,12 +233,12 @@ function binder(fns, transform=identity) {
 
 function viewBinder(descs) {
   return obj => (
-    Object.entries(descs).reduce((fns, [name, desc]) => {
+    Object.entries(descs).reduce((fns, [key, desc]) => {
       desc = descBind(obj, desc, 'get')
       desc = descBind(obj, desc, 'set')
       desc = descBind(obj, desc, 'value')
       desc = {...desc, enumerable: true}
-      return Object.defineProperty(fns, name, desc)
+      return Object.defineProperty(fns, key, desc)
     }, {})
   )
 }
