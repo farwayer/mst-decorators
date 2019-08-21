@@ -6,14 +6,14 @@ Some features:
 - simple syntax without need to use extra helpers etc, just decorators
 - es6 extending
 - access to instance via `this`
-- `@view`, `@action`, `@flow`, `@volatile` decorators
+- attach actions, flows, views, volatile automatically
+- result of decorator function is decorator. Feel power in constructing types! 
 - model class is decorator so it can be used in another model (`@Location`)
 - late definition for recursive models (`@late(() => ref(Category)) topCategory`)
 - `preProcessSnapshot`/`postProcessSnapshot` as static class methods
 - can specify `onPatch`/`onSnapshot`/`onAction` just in class
 - lifecycle hook actions, composing and `getEnv()` works as well
 - several extra decorators: `@jsonDate`, `@setter`
-- result of decorator function is decorator. Feel power in constructing types!
 
 ## How to use
 
@@ -22,9 +22,8 @@ yarn add mst-decorators
 ```
 
 ```js
-import {
-  model, view, action, flow, ref, bool, array, map, maybe, id, str, jsonDate,
-} from 'mst-decorators'
+import {getEnv} from 'mobx-state-tree'
+import {model, view, ref, bool, array, map, maybe, id, str, jsonDate} from 'mst-decorators'
 
 @model class BaseUser {
   @id id
@@ -37,14 +36,21 @@ import {
   @maybe(str) firstName
   @maybe(str) lastName
   
-  @view get fullName() {
+  // view
+  get fullName() {
     if (!this.firstName && !this.lastName) return
     if (!this.lastName) return this.firstName
     if (!this.firstName) return this.lastName
     return `${this.firstName} ${this.lastName}`
   }
 
-  @action setPhone(phone) {
+  // view with parameter
+  @view prefixName(prefix) {
+    return `${prefix} ${this.fullName}`
+  }
+
+  // action
+  setPhone(phone) {
     this.phone = phone
   }
 }
@@ -63,7 +69,7 @@ const Sender = maybe(ref(User))
   @jsonDate date
   @bool unread = true
   @model(class {
-    @Location location
+    @maybe(Location) location
     @array(str) files
     @array(str) images
   }) attachments
@@ -91,24 +97,50 @@ const Sender = maybe(ref(User))
   @array(Message) messages
   @map(User) users
 
-  @action afterCreate() {
-    this.fetchMessages()
+  api = undefined // volatile
+
+  // lifecycle hook action
+  afterCreate() {
+    this.api = getEnv(this)
   }
 
-  @flow fetchMessages = function* () {
-    this.messages = yield Api.fetchMessages()
+  // flow
+  *fetchMessages() {
+    this.messages = yield this.api.fetchMessages(this.id)
   }
 }
 
-const chat = Chat.create({
-  id: '1',
-})
+const chat = Chat.create({id: '1'})
+chat.fetchMessages()
+```
+
+## TS
+
+Because class decorator can't modify type declaration in TS you should use
+`model` function instead `@model` decorator.
+
+```js
+class Message {
+  @str text
+}
+
+export default model(Message)
+```
+
+```js
+import Message from './message'
+
+class Chat {
+  @array(Message) text
+}
+
+export default model(Chat)
 ```
 
 ## API
 
 - `@model`
-- `@prop`, `@action`, `@view`, `@flow`, `@volatile`
+- `@prop`, `@view`, `@volatile`
 - `@string` (`@str`), `@number` (`@num`), `@integer` (`@int`),
 `@boolean` (`@bool`), `@date`, `@map`, `@array`, `@frozen`,
 `@identifier` (`@id`), `@identifierNumber` (`@idNum`), `@enumeration`,
