@@ -145,7 +145,7 @@ export default model(Chat)
 ## API
 
 - `@model`
-- `@prop`, `@view`, `@volatile`
+- `@prop`, `@view`
 - `@string` (`@str`), `@number` (`@num`), `@integer` (`@int`),
 `@boolean` (`@bool`), `@date`, `@map`, `@array`, `@frozen`,
 `@identifier` (`@id`), `@identifierNumber` (`@idNum`), `@enumeration`,
