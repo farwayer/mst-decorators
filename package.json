@@ -18,7 +18,7 @@
   "dependencies": {
     "@babel/runtime": "^7.5.5",
     "decorating": "^1.1.0",
-    "rambda": "^3.0.0"
+    "rambda": "^3.0.1"
   },
   "peerDependencies": {
     "mobx-state-tree": "^2"
@@ -34,8 +34,9 @@
     "mobx": "^5.13.0",
     "mobx-state-tree": "^3.14.1",
     "mocha": "^6.2.0",
+    "should": "^13.2.3",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.6.2"
   },
   "keywords": [
     "mobx",
