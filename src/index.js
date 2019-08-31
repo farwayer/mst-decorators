@@ -7,8 +7,12 @@ import {
   onAction as mstOnAction,
 } from 'mobx-state-tree'
 import {merge, pick, omit} from 'rambda'
-import {propertyDecorator, classDecorator, isPropertyDecorator} from 'decorating'
-import {setPrototypeOf, getOwnPropertyDescriptors, identity, capitalize, hasKeys} from './utils'
+import {
+  propertyDecorator, classDecorator, isPropertyDecorator
+} from 'decorating'
+import {
+  setPrototypeOf, getOwnPropertyDescriptors, identity, capitalize, hasKeys
+} from './utils'
 import * as is from './is'
 
 
@@ -97,9 +101,9 @@ export const prop = propertyTagger(PropsKey)
 export const view = propertyTagger(ViewsKey)
 
 export const enumeration = createTypeDecorator(mstTypes.enumeration)
+export const _model = createTypeDecorator(mstTypes.model)
 export const compose = createTypeDecorator(mstTypes.compose)
 export const custom = createTypeDecorator(mstTypes.custom)
-export const snapshotProcessor = createTypeDecorator(mstTypes.snapshotProcessor)
 export const reference = createTypeDecorator(mstTypes.reference)
 export const safeReference = createTypeDecorator(mstTypes.safeReference)
 export const union = createTypeDecorator(mstTypes.union)
@@ -118,25 +122,29 @@ export const array = createTypeDecorator(mstTypes.array)
 export const frozen = createTypeDecorator(mstTypes.frozen)
 export const identifier = createTypeDecorator(mstTypes.identifier)
 export const identifierNumber = createTypeDecorator(mstTypes.identifierNumber)
-export const _model = createTypeDecorator(mstTypes.model)
-export const _undefined = createTypeDecorator(mstTypes.undefined)
-export const _null = createTypeDecorator(mstTypes.null)
 export const late = createTypeDecorator(mstTypes.late, getDef => () => {
   const def = getDef()
   return def[TypeKey] || def
 })
-export const undef = _undefined // alias
-export const nul = _null // alias
-export const ref = reference // alias
-export const safeRef = safeReference // alias
-export const id = identifier // alias
-export const idNum = identifierNumber // alias
-export const str = string // alias
-export const num = number // alias
-export const int = integer // alias
-export const opt = optional // alias
-export const bool = boolean // alias
-export const snapProc = snapshotProcessor // alias
+export const _undefined = createTypeDecorator(mstTypes.undefined)
+export const _null = createTypeDecorator(mstTypes.null)
+export const snapshotProcessor = createTypeDecorator(mstTypes.snapshotProcessor)
+
+// alias
+export const ref = reference
+export const safeRef = safeReference
+export const opt = optional
+export const str = string
+export const bool = boolean
+export const num = number
+export const int = integer
+export const id = identifier
+export const idNum = identifierNumber
+export const undef = _undefined
+export const nul = _null
+export const snapProc = snapshotProcessor
+
+// extra
 export const jsonDate = custom({
   name: 'JSONDate',
   fromSnapshot: val => is.str(val) || is.int(val) ? new Date(val) : val,
@@ -146,12 +154,16 @@ export const jsonDate = custom({
     ? "null or undefined is not a valid value for JSONDate"
     : "",
 })
+
 export const types = {
-  enumeration, compose, custom, reference, union, optional, literal, maybe,
-  maybeNull, refinement, string, boolean, number, integer, date, map, array,
-  frozen, identifier, identifierNumber, late, model: _model,
-  undefined: _undefined, null: _null, nul, undef, ref, id, idNum, str, num,
-  int, opt, bool, jsonDate,
+  enumeration, model: _model, compose, custom, reference, safeReference,
+  union, optional, literal, maybe, maybeNull, refinement,
+  string, boolean, number, integer, date, map, array, frozen,
+  identifier, identifierNumber, late, undefined: _undefined, null: _null,
+  snapshotProcessor,
+  ref, safeRef, opt, str, bool, num, int, id, idNum, undef, nul,
+  snapProc,
+  jsonDate,
 }
 
 export const setter = propertyDecorator((
