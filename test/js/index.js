@@ -1,4 +1,5 @@
 describe('JS', () => {
-  require('./base')
+  require('./basic')
   require('./extend')
+  require('./process-snap')
 })

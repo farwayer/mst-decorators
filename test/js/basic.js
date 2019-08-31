@@ -2,7 +2,7 @@ import {model, prop, view, types as t} from '../../src'
 import {timeout} from './utils'
 
 
-describe('base', () => {
+describe('basic', () => {
   it('all types', () => {
     @model class C1 {
       @t.str v1
