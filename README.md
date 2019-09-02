@@ -2,6 +2,7 @@
 
 _Class based MobX-State-Tree definitions._
 
+[![NPM version](https://img.shields.io/npm/v/mst-decorators.svg)](https://www.npmjs.com/package/mst-decorators)
 [![Build Status](https://travis-ci.com/farwayer/mst-decorators.svg?branch=master)](https://travis-ci.com/farwayer/mst-decorators)
 [![Coverage Status](https://coveralls.io/repos/github/farwayer/mst-decorators/badge.svg)](https://coveralls.io/github/farwayer/mst-decorators)
 
