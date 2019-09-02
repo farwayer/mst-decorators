@@ -4,14 +4,16 @@ import {timeout} from '../utils'
 
 describe('extend', () => {
   it('should work', () => {
-    @model class BaseUser {
+    class MBaseUser {
       @str login
       @str password
     }
+    const BaseUser = model(MBaseUser)
 
-    @model class User extends BaseUser {
+    class MUser extends BaseUser {
       @str firstName
     }
+    const User = model(MUser)
 
     const user = User.create({
       login: 'user',
@@ -25,13 +27,15 @@ describe('extend', () => {
   })
 
   it('overriding props', () => {
-    @model class BaseUser {
+    class MBaseUser {
       @str login
     }
+    const BaseUser = model(MBaseUser)
 
-    @model class User extends BaseUser {
+    class MUser extends BaseUser {
       @num login
     }
+    const User = model(MUser)
 
     const user = User.create({
       login: 1,
@@ -41,19 +45,21 @@ describe('extend', () => {
   })
 
   it('overriding action', () => {
-    @model class BaseUser {
+    class MBaseUser {
       @maybe(str) login
 
       setLogin(login) {
         this.login = login
       }
     }
+    const BaseUser = model(MBaseUser)
 
-    @model class User extends BaseUser {
+    class MUser extends BaseUser {
       setLogin(login) {
         this.login = login + '1'
       }
     }
+    const User = model(MUser)
 
     const user = User.create()
     user.setLogin('user')
@@ -62,7 +68,7 @@ describe('extend', () => {
   })
 
   it('overriding flow', async () => {
-    @model class BaseUser {
+    class MBaseUser {
       @maybe(str) login
 
       *setLogin(login) {
@@ -70,13 +76,15 @@ describe('extend', () => {
         this.login = login
       }
     }
+    const BaseUser = model(MBaseUser)
 
-    @model class User extends BaseUser {
+    class MUser extends BaseUser {
       *setLogin(login) {
         yield timeout(1)
         this.login = login + '1'
       }
     }
+    const User = model(MUser)
 
     const user = User.create()
     await user.setLogin('user')

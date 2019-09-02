@@ -1,2 +1,2 @@
 import './js'
-// import './ts'
+import './ts'

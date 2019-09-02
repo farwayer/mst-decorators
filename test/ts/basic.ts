@@ -4,20 +4,24 @@ import {timeout} from '../utils'
 
 describe('basic', () => {
   it('all types', () => {
-    @model class C1 {
+    class MC1 {
       @t.str v1
     }
-    @model class C2 {
+    class MC2 {
       @t.str v2
     }
-    @model class WithId {
+    class MWithId {
       @t.id id
     }
-    @model class WithIdNum {
+    class MWithIdNum {
       @t.idNum idNum
     }
+    const C1 = model(MC1)
+    const C2 = model(MC2)
+    const WithId = model(MWithId)
+    const WithIdNum = model(MWithIdNum)
 
-    @model class Base {
+    class MBase {
       @t.id id
       @WithIdNum withIdNum
       @t.str str
@@ -43,6 +47,7 @@ describe('basic', () => {
       @t.null null
       @t.late(() => t.str) late
     }
+    const Base = model(MBase)
 
     const base = Base.create({
       id: 'id',
@@ -101,9 +106,10 @@ describe('basic', () => {
   })
 
   it('prop', () => {
-    @model class Base {
+    class MBase {
       @prop(t.str) prop
     }
+    const Base = model(MBase)
 
     const base = Base.create({
       prop: 'prop',
@@ -113,22 +119,24 @@ describe('basic', () => {
   })
 
   it('default value', () => {
-    @model class Base {
+    class MBase {
       @t.str str = 'str'
     }
+    const Base = model(MBase)
 
     const base = Base.create()
     base.should.have.property('str').which.is.equal('str')
   })
 
   it('view', () => {
-    @model class Base {
+    class MBase {
       @t.str str
 
       get view() {
         return this.str
       }
     }
+    const Base = model(MBase)
 
     const base = Base.create({
       str: 'str',
@@ -138,13 +146,14 @@ describe('basic', () => {
   })
 
   it('view with args', () => {
-    @model class Base {
+    class MBase {
       @t.str str
 
       @view view(prefix) {
         return prefix + this.str
       }
     }
+    const Base = model(MBase)
 
     const base = Base.create({
       str: 'str',
@@ -154,13 +163,14 @@ describe('basic', () => {
   })
 
   it('action', () => {
-    @model class Base {
+    class MBase {
       @t.maybe(t.str) str
 
       setStr(str) {
         this.str = str
       }
     }
+    const Base = model(MBase)
 
     const base = Base.create()
     base.setStr('str')
@@ -169,7 +179,7 @@ describe('basic', () => {
   })
 
   it('flow', async () => {
-    @model class Base {
+    class MBase {
       @t.maybe(t.str) str
 
       *setStr(str) {
@@ -177,6 +187,7 @@ describe('basic', () => {
         this.str = str
       }
     }
+    const Base = model(MBase)
 
     const base = Base.create()
     await base.setStr('str')
@@ -185,7 +196,7 @@ describe('basic', () => {
   })
 
   it('throw if new', () => {
-    @model class Base {}
+    const Base = model(class {});
     (() => {
       new Base()
     }).should.throw()

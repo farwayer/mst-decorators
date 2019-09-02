@@ -7,14 +7,15 @@
   "author": "farwayer <farwayer@gmail.com>",
   "scripts": {
     "prepack": "yarn clean && yarn cjs && yarn esm",
-    "cjs": "babel --out-dir dist/cjs src",
-    "esm": "ESM=1 babel --out-dir dist/esm src",
+    "cjs": "babel --out-dir cjs src",
+    "esm": "ESM=1 babel --out-dir esm src",
     "clean": "rm -rf cjs esm",
     "test": "mocha"
   },
-  "main": "dist/cjs",
-  "module": "dist/esm",
+  "main": "cjs",
+  "module": "esm",
   "react-native": "src",
+  "types": "src/index.d.ts",
   "dependencies": {
     "@babel/runtime": "^7.5.5",
     "decorating": "^1.1.0",
