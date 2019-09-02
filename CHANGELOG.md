@@ -1,5 +1,9 @@
 ## Changelog
 
+### 2.0.1
+
+- correcting MST peer version
+
 ### 2.0.0
 
 - `@flow` and `@action` decorators removed. All simple functions
