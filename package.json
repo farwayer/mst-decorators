@@ -23,7 +23,7 @@
     "rambda": "^3.0.1"
   },
   "peerDependencies": {
-    "mobx-state-tree": "^2"
+    "mobx-state-tree": ">=3.11"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
