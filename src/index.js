@@ -24,7 +24,16 @@ const ExcludeKeys = [
   TypeKey, PropsKey, ViewsKey,
 ]
 
-export const model = classDecorator((Class, name = Class.name) => {
+export const model = classDecorator((
+  Class,
+  name = Class.name,
+  options = {auto: false},
+) => {
+  if (is.obj(name)) {
+    options = merge(options, name)
+    name = Class.name
+  }
+
   const {preProcessSnapshot, postProcessSnapshot} = Class
   // TS class property initializers and defaults from constructor
   const values = new Class()
@@ -67,7 +76,10 @@ export const model = classDecorator((Class, name = Class.name) => {
 
   Model = Model.preProcessSnapshot(snapshot => {
     snapshot = preProcessSnapshot ? preProcessSnapshot(snapshot) : snapshot
-    if (!is.obj(snapshot)) return snapshot
+    if (!is.obj(snapshot)) {
+      if (!options.auto) return snapshot
+      snapshot = {}
+    }
     return merge(values, snapshot)
   })
 

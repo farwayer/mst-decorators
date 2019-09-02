@@ -9,8 +9,12 @@ export declare interface Model<T extends Function> {
   is(thing: any): boolean
 }
 
+export declare type ModelOptions = {
+  auto: boolean,
+}
 export declare function model<T extends Function>(target: T): T & Model<T> & PropertyDecorator
-export declare function model(name: string): typeof model
+export declare function model(name?: string, options?: ModelOptions): typeof model
+export declare function model(options?: ModelOptions): typeof model
 export declare function prop(...args: any[]): any
 export declare const view: MethodDecorator
 

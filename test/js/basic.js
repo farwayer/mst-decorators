@@ -110,6 +110,20 @@ describe('basic', () => {
     getMembers(base).name.should.be.equal('User')
   })
 
+  it('auto model', () => {
+    @model({auto: true}) class Base {
+      @t.str str = 'str'
+    }
+
+    @model class Container {
+      @Base base
+    }
+
+    const cont = Container.create()
+    cont.should.have.property('base')
+    cont.base.str.should.be.equal('str')
+  })
+
   it('prop', () => {
     @model class Base {
       @prop(t.str) prop
