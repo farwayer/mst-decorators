@@ -4,3 +4,4 @@ babel.config.js
 .npmignore
 yarn-error.log
 test/
+.travis.yml
