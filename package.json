@@ -10,8 +10,8 @@
     "cjs": "babel --out-dir cjs src",
     "esm": "ESM=1 babel --out-dir esm src",
     "clean": "rm -rf cjs esm",
-    "test": "mocha",
-    "cover": "nyc yarn test"
+    "test": "nyc mocha",
+    "cover": "nyc report --reporter=text-lcov | coveralls"
   },
   "main": "cjs",
   "module": "esm",
@@ -35,6 +35,7 @@
     "@babel/register": "^7.5.5",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.7.3",
+    "coveralls": "^3.0.6",
     "mobx": "^5.13.0",
     "mobx-state-tree": "^3.14.1",
     "mocha": "^6.2.0",
