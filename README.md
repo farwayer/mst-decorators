@@ -3,7 +3,7 @@
 _Class based MobX-State-Tree definitions._
 
 [![Build Status](https://img.shields.io/travis/farwayer/mst-decorators.svg)](https://travis-ci.org/farwayer/mst-decorators)
-[![Coverage Status](https://img.shields.io/coveralls/farwayer/mst-decorators.svg)](https://coveralls.io/github/farwayer/mst-decorators?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/farwayer/mst-decorators/badge.svg)](https://coveralls.io/github/farwayer/mst-decorators)
 
 Some features:
 - simple syntax without need to use extra helpers etc, just type decorators
