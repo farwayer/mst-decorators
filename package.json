@@ -32,6 +32,8 @@
     "@babel/plugin-transform-runtime": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/register": "^7.5.5",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.7.3",
     "mobx": "^5.13.0",
     "mobx-state-tree": "^3.14.1",
     "mocha": "^6.2.0",
