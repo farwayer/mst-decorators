@@ -10,6 +10,7 @@ export declare interface Model<T extends Function> {
 }
 
 export declare function model<T extends Function>(target: T): T & Model<T> & PropertyDecorator
+export declare function model(name: string): typeof model
 export declare function prop(...args: any[]): any
 export declare const view: MethodDecorator
 

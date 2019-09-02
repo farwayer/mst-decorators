@@ -1,3 +1,4 @@
+import {getMembers} from 'mobx-state-tree'
 import {model, prop, view, types as t} from '../../src'
 import {timeout} from '../utils'
 
@@ -103,6 +104,13 @@ describe('basic', () => {
     base.should.have.property('undef').which.is.undefined()
     base.should.have.property('null').which.is.null()
     base.should.have.property('late').which.is.equal('late')
+  })
+
+  it('named model', () => {
+    const Base = model('User')(class {})
+
+    const base = Base.create()
+    getMembers(base).name.should.be.equal('User')
   })
 
   it('prop', () => {
