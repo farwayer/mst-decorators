@@ -1,5 +1,5 @@
 import {getMembers} from 'mobx-state-tree'
-import {model, prop, view, types as t} from '../../src'
+import {model, prop, view, types as t, getMstType} from '../../src'
 import {timeout} from '../utils'
 
 
@@ -224,5 +224,16 @@ describe('basic', () => {
     (() => {
       new Base()
     }).should.throw()
+  })
+
+  it('getMstType basic type', () => {
+    const mstType = getMstType(t.str)
+    mstType.should.have.property('isType').which.is.true()
+  })
+
+  it('getMstType model', () => {
+    const Base = model(class {});
+    const mstType = getMstType(Base)
+    mstType.should.have.property('isType').which.is.true()
   })
 })

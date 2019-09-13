@@ -107,3 +107,5 @@ export declare const types: {
   jsonDate: typeof jsonDate,
   setter: typeof setter,
 }
+
+export declare function getMstType(type: any): IType
