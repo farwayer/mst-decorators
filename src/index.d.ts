@@ -1,18 +1,24 @@
 import {
   IStateTreeNode, IType,
   ModelProperties,
-  ModelSnapshotType
+  ModelSnapshotType,
+  ModelActions,
+  Instance,
 } from 'mobx-state-tree'
+
+export declare type ModelDecorator<T extends Function> = T & Model<T> & PropertyDecorator
 
 export declare interface Model<T extends Function> {
   create(snapshot?: ModelSnapshotType<ModelProperties>, env?: any): IStateTreeNode<IType<any, unknown, any>> & InstanceType<T>
   is(thing: any): boolean
+  props<A extends ModelProperties>(props: object): ModelDecorator<A>
+  actions<A extends ModelActions>(fn: (self: Instance<this>) => A): ModelDecorator<A>
 }
 
 export declare type ModelOptions = {
   auto: boolean,
 }
-export declare function model<T extends Function>(target: T): T & Model<T> & PropertyDecorator
+export declare function model<T extends Function>(target: T): ModelDecorator<T>
 export declare function model(name?: string, options?: ModelOptions): typeof model
 export declare function model(options?: ModelOptions): typeof model
 export declare function prop(...args: any[]): any

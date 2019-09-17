@@ -225,4 +225,40 @@ describe('basic', () => {
     const mstType = getMstType(Base)
     mstType.should.have.property('isType').which.is.true()
   })
+
+  it('extend model with props()', () => {
+    @model class Base {}
+    const WithStr = Base.props({
+      str: t.str,
+    })
+    const withStr = WithStr.create({
+      str: 'str',
+    })
+    withStr.should.have.property('str').which.is.equal('str')
+  })
+
+  it('extend model with actions()', async () => {
+    @model class Base {
+      @t.str str
+    }
+    const WithActions = Base.actions(() => ({
+      setStr(str) {
+        this.str = str
+      },
+
+      *setStrWithTimeout(str) {
+        yield timeout(1)
+        this.str = str
+      }
+    }))
+    const store = WithActions.create({
+      str: '',
+    })
+
+    store.setStr('str')
+    store.should.have.property('str').which.is.equal('str')
+
+    await store.setStrWithTimeout('str2')
+    store.should.have.property('str').which.is.equal('str2')
+  })
 })

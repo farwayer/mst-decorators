@@ -6,7 +6,7 @@ import {
   onPatch as mstOnPatch,
   onAction as mstOnAction,
 } from 'mobx-state-tree'
-import {merge, pick, omit} from 'rambda'
+import {merge, pick, omit, pipe, map as rdMap, filter, forEach} from 'rambda'
 import {
   propertyDecorator, classDecorator, isPropertyDecorator
 } from 'decorating'
@@ -235,11 +235,31 @@ function assignType(type, fn) {
     is: type.is && type.is.bind(type),
     validate: type.validate && type.validate.bind(type),
     instantiate: type.instantiate && type.instantiate.bind(type),
-    actions: type.actions && type.actions.bind(type),
+    props: type.props && modelProps(type),
+    actions: type.actions && modelActions(type),
     views: type.views && type.views.bind(type),
     volatile: type.volatile && type.volatile.bind(type),
   }
   return Object.assign(fn.bind(type), type)
+}
+
+function modelProps(type) {
+  return pipe(
+    rdMap(prop => getMstType(prop) || prop),
+    type.props.bind(type),
+  )
+}
+
+function modelActions(type) {
+  return getActions => type.actions(store => {
+    const actions = getActions(store)
+
+    return rdMap(action => {
+      const isGen = is.gen(action)
+      action = action.bind(store)
+      return isGen ? mstFlow(action) : action
+    })(actions)
+  })
 }
 
 function binder(fns, transform = identity) {
