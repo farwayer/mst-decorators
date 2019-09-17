@@ -1,5 +1,5 @@
 import {
-  types as mstTypes,
+  types as MstTypes,
   flow as mstFlow,
   clone as mstClone,
   onSnapshot as mstOnSnapshot,
@@ -67,7 +67,7 @@ export const model = classDecorator((
   const mstType = getMstType(Class)
   let Model = mstType
     ? mstType.named(name).props(props)  // extend base model
-    : mstTypes.model(name, props)
+    : MstTypes.model(name, props)
   Model = isEmpty(volatile) ? Model : Model.volatile(() => volatile)
   Model = isEmpty(actions) ? Model : Model.actions(binder(actions))
   Model = isEmpty(flows) ? Model : Model.actions(binder(flows, mstFlow))
@@ -111,35 +111,35 @@ export const model = classDecorator((
 export const prop = propertyTagger(PropsKey)
 export const view = propertyTagger(ViewsKey)
 
-export const enumeration = createTypeDecorator(mstTypes.enumeration)
-export const _model = createTypeDecorator(mstTypes.model)
-export const compose = createTypeDecorator(mstTypes.compose)
-export const custom = createTypeDecorator(mstTypes.custom)
-export const reference = createTypeDecorator(mstTypes.reference)
-export const safeReference = createTypeDecorator(mstTypes.safeReference)
-export const union = createTypeDecorator(mstTypes.union)
-export const optional = createTypeDecorator(mstTypes.optional)
-export const literal = createTypeDecorator(mstTypes.literal)
-export const maybe = createTypeDecorator(mstTypes.maybe)
-export const maybeNull = createTypeDecorator(mstTypes.maybeNull)
-export const refinement = createTypeDecorator(mstTypes.refinement)
-export const string = createTypeDecorator(mstTypes.string)
-export const boolean = createTypeDecorator(mstTypes.boolean)
-export const number = createTypeDecorator(mstTypes.number)
-export const integer = createTypeDecorator(mstTypes.integer)
-export const date = createTypeDecorator(mstTypes.Date)
-export const map = createTypeDecorator(mstTypes.map)
-export const array = createTypeDecorator(mstTypes.array)
-export const frozen = createTypeDecorator(mstTypes.frozen)
-export const identifier = createTypeDecorator(mstTypes.identifier)
-export const identifierNumber = createTypeDecorator(mstTypes.identifierNumber)
-export const late = createTypeDecorator(mstTypes.late, getDef => () => {
+export const enumeration = createTypeDecorator(MstTypes.enumeration)
+export const _model = createTypeDecorator(MstTypes.model)
+export const compose = createTypeDecorator(MstTypes.compose)
+export const custom = createTypeDecorator(MstTypes.custom)
+export const reference = createTypeDecorator(MstTypes.reference)
+export const safeReference = createTypeDecorator(MstTypes.safeReference)
+export const union = createTypeDecorator(MstTypes.union)
+export const optional = createTypeDecorator(MstTypes.optional)
+export const literal = createTypeDecorator(MstTypes.literal)
+export const maybe = createTypeDecorator(MstTypes.maybe)
+export const maybeNull = createTypeDecorator(MstTypes.maybeNull)
+export const refinement = createTypeDecorator(MstTypes.refinement)
+export const string = createTypeDecorator(MstTypes.string)
+export const boolean = createTypeDecorator(MstTypes.boolean)
+export const number = createTypeDecorator(MstTypes.number)
+export const integer = createTypeDecorator(MstTypes.integer)
+export const date = createTypeDecorator(MstTypes.Date)
+export const map = createTypeDecorator(MstTypes.map)
+export const array = createTypeDecorator(MstTypes.array)
+export const frozen = createTypeDecorator(MstTypes.frozen)
+export const identifier = createTypeDecorator(MstTypes.identifier)
+export const identifierNumber = createTypeDecorator(MstTypes.identifierNumber)
+export const late = createTypeDecorator(MstTypes.late, getDef => () => {
   const def = getDef()
   return getMstType(def) || def
 })
-export const _undefined = createTypeDecorator(mstTypes.undefined)
-export const _null = createTypeDecorator(mstTypes.null)
-export const snapshotProcessor = createTypeDecorator(mstTypes.snapshotProcessor)
+export const _undefined = createTypeDecorator(MstTypes.undefined)
+export const _null = createTypeDecorator(MstTypes.null)
+export const snapshotProcessor = createTypeDecorator(MstTypes.snapshotProcessor)
 
 // alias
 export const ref = reference
