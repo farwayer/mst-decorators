@@ -18,7 +18,7 @@
   "react-native": "src",
   "types": "src/index.d.ts",
   "dependencies": {
-    "@babel/runtime": "^7.5.5",
+    "@babel/runtime": "^7.6.0",
     "decorating": "^1.1.0",
     "rambda": "^3.0.1"
   },
@@ -26,23 +26,23 @@
     "mobx-state-tree": ">=3.11"
   },
   "devDependencies": {
-    "@babel/cli": "^7.5.5",
-    "@babel/core": "^7.5.5",
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/plugin-proposal-decorators": "^7.4.4",
-    "@babel/plugin-transform-runtime": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
-    "@babel/register": "^7.5.5",
+    "@babel/plugin-proposal-decorators": "^7.6.0",
+    "@babel/plugin-transform-runtime": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/register": "^7.6.0",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.7.3",
+    "@types/node": "^12.7.5",
     "coveralls": "^3.0.6",
     "mobx": "^5.13.0",
     "mobx-state-tree": "^3.14.1",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
     "should": "^13.2.3",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.6.2"
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.3"
   },
   "keywords": [
     "mobx",
