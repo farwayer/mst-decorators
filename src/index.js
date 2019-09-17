@@ -52,14 +52,12 @@ export const model = classDecorator((
   const views = pick(viewKeys, descs)
   const volatile = omit(omitKeys, pick(ownKeys, values))
   const actions = {}
-  const flows = {}
 
   pipe(
     filter((desc, key) => !omitKeys.includes(key)),
     forEach((desc, key) => {
       const {get, set, value} = desc
       if (get || set) return views[key] = desc
-      if (is.gen(value)) return flows[key] = value
       if (is.fn(value)) return actions[key] = value
     }),
   )(descs)
@@ -69,8 +67,7 @@ export const model = classDecorator((
     ? mstType.named(name).props(props)  // extend base model
     : MstTypes.model(name, props)
   Model = isEmpty(volatile) ? Model : Model.volatile(() => volatile)
-  Model = isEmpty(actions) ? Model : Model.actions(binder(actions))
-  Model = isEmpty(flows) ? Model : Model.actions(binder(flows, mstFlow))
+  Model = isEmpty(actions) ? Model : modelActions(Model)(() => actions)
   Model = isEmpty(views) ? Model : Model.views(viewBinder(views))
 
   Model = Model.preProcessSnapshot(snapshot => {
@@ -259,19 +256,6 @@ function modelActions(type) {
       return isGen ? mstFlow(action) : action
     })(actions)
   })
-}
-
-function binder(fns, transform = identity) {
-  return obj => (
-    Object.entries(fns).reduce((fns, [fnName, fn]) => {
-      if (!is.fn(fn)) {
-        throw new Error(`${fnName} must be function`)
-      }
-
-      fns[fnName] = transform(fn.bind(obj))
-      return fns
-    }, {})
-  )
 }
 
 function viewBinder(descs) {
