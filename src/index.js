@@ -6,7 +6,7 @@ import {
   onPatch as mstOnPatch,
   onAction as mstOnAction,
 } from 'mobx-state-tree'
-import {merge, pick, omit, pipe, map as rdMap, filter, forEach, identity, isEmpty} from 'rambda'
+import {merge, pick, omit, pipe, map as rdMap, filter, forEach, isEmpty} from 'rambda'
 import {
   propertyDecorator, classDecorator, isPropertyDecorator
 } from 'decorating'
