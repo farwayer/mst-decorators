@@ -37,11 +37,11 @@ export const model = classDecorator((
   const values = new Class()
   const {onSnapshot, onPatch, onAction} = values
 
-  let props = extractTaggedProps(Class, PropsKey) || {}
+  let props = extractTaggedProps(Class, PropsKey)
   props = rdMap(args => args[0])(props)
 
   const propKeys = Object.keys(props)
-  const viewKeys = extractTaggedPropNames(Class, ViewsKey) || []
+  const viewKeys = Object.keys(extractTaggedProps(Class, ViewsKey))
   const ownKeys = Object.getOwnPropertyNames(values)
   const omitKeys = ExcludeKeys.concat(propKeys).concat(viewKeys)
   const descs = getOwnPropertyDescriptors(Class.prototype)
@@ -286,10 +286,5 @@ function extractTaggedProps(Class, key) {
   const proto = Class.prototype
   const props = proto[key]
   delete proto[key]
-  return props
-}
-
-function extractTaggedPropNames(Class, key) {
-  const props = extractTaggedProps(Class, key)
-  return props && Object.keys(props)
+  return props || {}
 }
