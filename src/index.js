@@ -39,12 +39,11 @@ export const model = classDecorator((
   const values = new Class()
   const {onSnapshot, onPatch, onAction} = values
 
-  const props = extractTaggedProps(Class, PropsKey) || {}
-  Object.values(props).forEach(({property, args}) => {
-    let type = args[0]
-    if (type && type[TypeKey]) type = type[TypeKey]
-    props[property] = is.def(type) ? type : values[property]
-  })
+  let props = extractTaggedProps(Class, PropsKey) || {}
+  props = rdMap(pipe(
+    args => args[0],
+    type => getMstType(type) || type,
+  ))(props)
 
   const propKeys = Object.keys(props)
   const viewKeys = extractTaggedPropNames(Class, ViewsKey) || []
@@ -57,14 +56,15 @@ export const model = classDecorator((
   const actions = {}
   const flows = {}
 
-  Object.entries(descs)
-    .filter(([key]) => !omitKeys.includes(key))
-    .forEach(([key, desc]) => {
+  pipe(
+    filter((desc, key) => !omitKeys.includes(key)),
+    forEach((desc, key) => {
       const {get, set, value} = desc
       if (get || set) return views[key] = desc
       if (is.gen(value)) return flows[key] = value
       if (is.fn(value)) return actions[key] = value
-    })
+    }),
+  )(descs)
 
   let Model = Class[TypeKey]
     ? Class[TypeKey].named(name).props(props)  // extend base model
@@ -208,7 +208,7 @@ export function getMstType(type) {
 function propertyTagger(key) {
   return propertyDecorator((target, property, desc, ...args) => {
     target[key] = target[key] || {}
-    target[key][property] = {target, property, desc, args}
+    target[key][property] = args
   })
 }
 
