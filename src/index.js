@@ -201,7 +201,7 @@ export const setter = propertyDecorator((
 })
 
 export function getMstType(type) {
-  return type[TypeKey]
+  return type && type[TypeKey]
 }
 
 
