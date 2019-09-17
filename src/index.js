@@ -38,10 +38,7 @@ export const model = classDecorator((
   const {onSnapshot, onPatch, onAction} = values
 
   let props = extractTaggedProps(Class, PropsKey) || {}
-  props = rdMap(pipe(
-    args => args[0],
-    type => getMstType(type) || type,
-  ))(props)
+  props = rdMap(args => args[0])(props)
 
   const propKeys = Object.keys(props)
   const viewKeys = extractTaggedPropNames(Class, ViewsKey) || []
@@ -62,10 +59,10 @@ export const model = classDecorator((
     }),
   )(descs)
 
-  const mstType = getMstType(Class)
-  let Model = mstType
-    ? mstType.named(name).props(props)  // extend base model
-    : MstTypes.model(name, props)
+  const mstType = getMstType(Class) // es6 extending
+  let Model = mstType ? mstType.named(name) : MstTypes.model(name)
+
+  Model = modelProps(Model)(props)
   Model = isEmpty(volatile) ? Model : Model.volatile(() => volatile)
   Model = isEmpty(actions) ? Model : modelActions(Model)(() => actions)
   Model = isEmpty(views) ? Model : Model.views(viewBinder(views))
