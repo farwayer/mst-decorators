@@ -18,10 +18,6 @@ export function getOwnPropertyDescriptors(obj) {
   }, {})
 }
 
-export function identity(val) {
-  return val
-}
-
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }

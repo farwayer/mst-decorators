@@ -6,13 +6,11 @@ import {
   onPatch as mstOnPatch,
   onAction as mstOnAction,
 } from 'mobx-state-tree'
-import {merge, pick, omit, pipe, map as rdMap, filter, forEach} from 'rambda'
+import {merge, pick, omit, pipe, map as rdMap, filter, forEach, identity} from 'rambda'
 import {
   propertyDecorator, classDecorator, isPropertyDecorator
 } from 'decorating'
-import {
-  setPrototypeOf, getOwnPropertyDescriptors, identity, capitalize, hasKeys
-} from './utils'
+import {setPrototypeOf, getOwnPropertyDescriptors, capitalize, hasKeys} from './utils'
 import * as is from './is'
 
 
