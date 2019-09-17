@@ -64,8 +64,9 @@ export const model = classDecorator((
     }),
   )(descs)
 
-  let Model = Class[TypeKey]
-    ? Class[TypeKey].named(name).props(props)  // extend base model
+  const mstType = getMstType(Class)
+  let Model = mstType
+    ? mstType.named(name).props(props)  // extend base model
     : mstTypes.model(name, props)
   Model = isEmpty(volatile) ? Model : Model.volatile(() => volatile)
   Model = isEmpty(actions) ? Model : Model.actions(binder(actions))
@@ -134,7 +135,7 @@ export const identifier = createTypeDecorator(mstTypes.identifier)
 export const identifierNumber = createTypeDecorator(mstTypes.identifierNumber)
 export const late = createTypeDecorator(mstTypes.late, getDef => () => {
   const def = getDef()
-  return def[TypeKey] || def
+  return getMstType(def) || def
 })
 export const _undefined = createTypeDecorator(mstTypes.undefined)
 export const _null = createTypeDecorator(mstTypes.null)
@@ -212,7 +213,7 @@ function propertyTagger(key) {
 
 function createTypeDecorator(
   type,
-  transformArg = arg => arg && arg[TypeKey] || arg,
+  transformArg = arg => getMstType(arg) || arg,
 ) {
   return assignType(type, function decorator(...args) {
     if (isPropertyDecorator(args)) {
