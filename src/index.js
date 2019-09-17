@@ -6,11 +6,11 @@ import {
   onPatch as mstOnPatch,
   onAction as mstOnAction,
 } from 'mobx-state-tree'
-import {merge, pick, omit, pipe, map as rdMap, filter, forEach, identity} from 'rambda'
+import {merge, pick, omit, pipe, map as rdMap, filter, forEach, identity, isEmpty} from 'rambda'
 import {
   propertyDecorator, classDecorator, isPropertyDecorator
 } from 'decorating'
-import {setPrototypeOf, getOwnPropertyDescriptors, capitalize, hasKeys} from './utils'
+import {setPrototypeOf, getOwnPropertyDescriptors, capitalize} from './utils'
 import * as is from './is'
 
 
@@ -67,10 +67,10 @@ export const model = classDecorator((
   let Model = Class[TypeKey]
     ? Class[TypeKey].named(name).props(props)  // extend base model
     : mstTypes.model(name, props)
-  Model = hasKeys(volatile) ? Model.volatile(() => volatile) : Model
-  Model = hasKeys(actions) ? Model.actions(binder(actions)) : Model
-  Model = hasKeys(flows) ? Model.actions(binder(flows, mstFlow)) : Model
-  Model = hasKeys(views) ? Model.views(viewBinder(views)) : Model
+  Model = isEmpty(volatile) ? Model : Model.volatile(() => volatile)
+  Model = isEmpty(actions) ? Model : Model.actions(binder(actions))
+  Model = isEmpty(flows) ? Model : Model.actions(binder(flows, mstFlow))
+  Model = isEmpty(views) ? Model : Model.views(viewBinder(views))
 
   Model = Model.preProcessSnapshot(snapshot => {
     snapshot = preProcessSnapshot ? preProcessSnapshot(snapshot) : snapshot
