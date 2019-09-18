@@ -38,7 +38,10 @@ export const model = classDecorator((
   const {onSnapshot, onPatch, onAction} = values
 
   let props = extractTaggedProps(Class, PropsKey)
-  props = rdMap(args => args[0])(props)
+  props = pipe(
+    rdMap(args => args[0]),
+    convertValuesToMst,
+  )(props)
 
   const propKeys = Object.keys(props)
   const viewKeys = Object.keys(extractTaggedProps(Class, ViewsKey))
@@ -60,9 +63,10 @@ export const model = classDecorator((
   )(descs)
 
   const mstType = getMstType(Class) // es6 extending
-  let Model = mstType ? mstType.named(name) : MstTypes.model(name)
+  let Model = mstType
+    ? mstType.named(name).props(props)
+    : MstTypes.model(name, props)
 
-  Model = modelProps(Model)(props)
   Model = isEmpty(volatile) ? Model : Model.volatile(() => volatile)
   Model = isEmpty(actions) ? Model : modelActions(Model)(() => actions)
   Model = isEmpty(views) ? Model : Model.views(viewBinder(views))
@@ -238,8 +242,8 @@ function assignType(type, fn) {
 
 function modelProps(type) {
   return pipe(
-    rdMap(prop => getMstType(prop) || prop),
-    type.props.bind(type),
+    convertValuesToMst,
+    type.props,
   )
 }
 
@@ -253,6 +257,10 @@ function modelActions(type) {
       return isGen ? mstFlow(action) : action
     })(actions)
   })
+}
+
+function convertValuesToMst(obj) {
+  return rdMap(prop => getMstType(prop) || prop)(obj)
 }
 
 function viewBinder(descs) {
