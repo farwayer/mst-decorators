@@ -7,9 +7,7 @@ import {
   onAction as mstOnAction,
 } from 'mobx-state-tree'
 import {merge, pick, omit, pipe, map as rdMap, filter, forEach, isEmpty} from 'rambda'
-import {
-  propertyDecorator, classDecorator, isPropertyDecorator
-} from 'decorating'
+import {propertyDecorator, classDecorator, isPropertyDecorator} from 'decorating'
 import {setPrototypeOf, getOwnPropertyDescriptors, capitalize} from './utils'
 import * as is from './is'
 
