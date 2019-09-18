@@ -119,6 +119,17 @@ describe('basic', () => {
     user2.should.have.property('str').which.is.equal('str')
   })
 
+  it('model type mst obj', () => {
+    let User = t.model({})
+    User = t.compose(User, MstTypes.model({
+      str: MstTypes.string,
+    }))
+    const user = User.create({
+      str: 'str',
+    })
+    user.should.have.property('str').which.is.equal('str')
+  })
+
   it('named model', () => {
     @model('User') class Base {
       @t.str str = '123'

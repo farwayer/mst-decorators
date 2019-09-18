@@ -5,6 +5,7 @@ import {
   onSnapshot as mstOnSnapshot,
   onPatch as mstOnPatch,
   onAction as mstOnAction,
+  isType as mstIsType,
 } from 'mobx-state-tree'
 import {merge, pick, omit, pipe, map as rdMap, filter, forEach, isEmpty} from 'rambda'
 import {propertyDecorator, classDecorator, isPropertyDecorator} from 'decorating'
@@ -224,6 +225,8 @@ function createTypeDecorator(
 }
 
 function transformArgToMst(arg) {
+  if (mstIsType(arg)) return arg
+
   const mstType = getMstType(arg)
   if (mstType) return mstType
 
