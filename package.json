@@ -1,6 +1,6 @@
 {
   "name": "mst-decorators",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "license": "WTFPL",
   "description": "Class based MobX-State-Tree definitions",
   "repository": "farwayer/mst-decorators",
