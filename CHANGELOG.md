@@ -1,5 +1,10 @@
 ## Changelog
 
+### 2.1.0
+
+- model props() and actions() for extending
+- getMstType() TS def
+
 ### 2.0.1
 
 - correcting MST peer version
