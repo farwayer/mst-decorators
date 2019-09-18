@@ -1,5 +1,9 @@
 ## Changelog
 
+### 2.1.1
+
+- check if mst type already while converting type arguments
+
 ### 2.1.0
 
 - model props() and actions() for extending
