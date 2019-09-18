@@ -1,4 +1,4 @@
-import {getMembers} from 'mobx-state-tree'
+import {getMembers, types as MstTypes} from 'mobx-state-tree'
 import {model, prop, view, types as t, getMstType} from '../../src'
 import {timeout} from '../utils'
 
@@ -104,6 +104,24 @@ describe('basic', () => {
     base.should.have.property('undef').which.is.undefined()
     base.should.have.property('null').which.is.null()
     base.should.have.property('late').which.is.equal('late')
+  })
+
+  it('model type', () => {
+    const User = t.model('User', {
+      str: MstTypes.string,
+    })
+    const user = User.create({
+      str: 'str'
+    })
+    user.should.have.property('str').which.is.equal('str')
+
+    const User2 = t.model('User2', {
+      str: t.str,
+    })
+    const user2 = User2.create({
+      str: 'str'
+    })
+    user2.should.have.property('str').which.is.equal('str')
   })
 
   it('named model', () => {

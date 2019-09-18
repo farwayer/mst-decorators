@@ -211,7 +211,7 @@ function propertyTagger(key) {
 
 function createTypeDecorator(
   type,
-  transformArg = arg => getMstType(arg) || arg,
+  transformArg = transformArgToMst,
 ) {
   return assignType(type, function decorator(...args) {
     if (isPropertyDecorator(args)) {
@@ -223,6 +223,15 @@ function createTypeDecorator(
       : type
     return assignType(decoratorType, decorator)
   })
+}
+
+function transformArgToMst(arg) {
+  const mstType = getMstType(arg)
+  if (mstType) return mstType
+
+  return is.obj(arg)
+    ? convertValuesToMst(arg)
+    : arg
 }
 
 function assignType(type, fn) {
@@ -260,7 +269,7 @@ function modelActions(type) {
 }
 
 function convertValuesToMst(obj) {
-  return rdMap(prop => getMstType(prop) || prop)(obj)
+  return rdMap(val => getMstType(val) || val)(obj)
 }
 
 function viewBinder(descs) {
