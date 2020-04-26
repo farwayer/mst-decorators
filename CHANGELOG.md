@@ -1,5 +1,9 @@
 ## Changelog
 
+### 2.1.3
+
+- fix incorrect gen check
+
 ### 2.1.2
 
 - optimize creating objects with many views
