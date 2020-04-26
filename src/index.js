@@ -284,7 +284,7 @@ function viewBinder(descs) {
 
 function descBind(obj, desc, fnName) {
   const fn = desc[fnName]
-  if (!is.fn(fn)) return desc
+  if (!isFn(fn)) return desc
   return {...desc, [fnName]: fn.bind(obj)}
 }
 
