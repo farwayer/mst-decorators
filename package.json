@@ -20,6 +20,7 @@
   "dependencies": {
     "@babel/runtime": "^7.6.0",
     "decorating": "^1.1.0",
+    "istp": "^1.0.0",
     "rambda": "^3.1.0"
   },
   "peerDependencies": {

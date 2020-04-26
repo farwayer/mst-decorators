@@ -10,7 +10,7 @@ import {
 import {merge, pick, omit, pipe, map as rdMap, filter, forEach, isEmpty} from 'rambda'
 import {propertyDecorator, classDecorator, isPropertyDecorator} from 'decorating'
 import {setPrototypeOf, getOwnPropertyDescriptors, capitalize} from './utils'
-import * as is from './is'
+import {isFn, isDef, isObj, isStr, isInt, isNul, isGen} from 'istp'
 
 
 const TypeKey = tagKey('type')
@@ -26,7 +26,7 @@ export const model = classDecorator((
   name = Class.name,
   options = {auto: false},
 ) => {
-  if (is.obj(name)) {
+  if (isObj(name)) {
     options = merge(options, name)
     name = Class.name
   }
@@ -57,7 +57,7 @@ export const model = classDecorator((
     forEach((desc, key) => {
       const {get, set, value} = desc
       if (get || set) return views[key] = desc
-      if (is.fn(value)) return actions[key] = value
+      if (isFn(value)) return actions[key] = value
     }),
   )(descs)
 
@@ -72,7 +72,7 @@ export const model = classDecorator((
 
   Model = Model.preProcessSnapshot(snapshot => {
     snapshot = preProcessSnapshot ? preProcessSnapshot(snapshot) : snapshot
-    if (!is.obj(snapshot)) {
+    if (!isObj(snapshot)) {
       if (!options.auto) return snapshot
       snapshot = {}
     }
@@ -155,10 +155,10 @@ export const snapProc = snapshotProcessor
 // extra
 export const jsonDate = custom({
   name: 'JSONDate',
-  fromSnapshot: val => is.str(val) || is.int(val) ? new Date(val) : val,
+  fromSnapshot: val => isStr(val) || isInt(val) ? new Date(val) : val,
   toSnapshot: date => date.toJSON(),
   isTargetType: date => date instanceof Date,
-  getValidationMessage: val => is.nul(val) || !is.def(val)
+  getValidationMessage: val => isNul(val) || !isDef(val)
     ? "null or undefined is not a valid value for JSONDate"
     : "",
 })
@@ -184,13 +184,13 @@ export const setter = propertyDecorator((
   } = {},
 ) => {
   target[name] = function (value) {
-    if (is.def(customValue)) {
-      value = is.fn(customValue)
+    if (isDef(customValue)) {
+      value = isFn(customValue)
         ? customValue.call(this, value)
         : customValue
     }
 
-    this[prop] = is.def(value) && clone
+    this[prop] = isDef(value) && clone
       ? mstClone(value, keepEnvironment)
       : value
   }
@@ -217,7 +217,7 @@ function createTypeDecorator(
       return prop(this)(...args)
     }
 
-    const decoratorType = is.fn(type)
+    const decoratorType = isFn(type)
       ? type(...args.map(transformArg))
       : type
     return assignType(decoratorType, decorator)
@@ -230,9 +230,7 @@ function transformArgToMst(arg) {
   const mstType = getMstType(arg)
   if (mstType) return mstType
 
-  return is.obj(arg)
-    ? convertValuesToMst(arg)
-    : arg
+  return isObj(arg) ? convertValuesToMst(arg) : arg
 }
 
 function assignType(type, fn) {
@@ -262,9 +260,8 @@ function modelActions(type) {
     const actions = getActions(store)
 
     return rdMap(action => {
-      const isGen = is.gen(action)
       action = action.bind(store)
-      return isGen ? mstFlow(action) : action
+      return isGen(action) ? mstFlow(action) : action
     })(actions)
   })
 }
