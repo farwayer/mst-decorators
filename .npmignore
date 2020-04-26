@@ -1,7 +1,0 @@
-.nyc_output/
-.idea/
-babel.config.js
-.npmignore
-yarn-error.log
-test/
-.travis.yml

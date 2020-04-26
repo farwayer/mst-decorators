@@ -47,5 +47,10 @@
     "mobx-state-tree",
     "decorators",
     "class"
+  ],
+  "files": [
+    "src",
+    "cjs",
+    "esm"
   ]
 }
