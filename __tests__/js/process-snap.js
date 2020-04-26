@@ -1,3 +1,4 @@
+import 'should'
 import {getSnapshot} from 'mobx-state-tree'
 import {model, str} from '../../src'
 

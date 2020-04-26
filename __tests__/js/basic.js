@@ -1,3 +1,4 @@
+import 'should'
 import {getMembers, types as MstTypes} from 'mobx-state-tree'
 import {model, prop, view, types as t, getMstType} from '../../src'
 import {timeout} from '../utils'
@@ -5,24 +6,20 @@ import {timeout} from '../utils'
 
 describe('basic', () => {
   it('all types', () => {
-    class MC1 {
+    @model class C1 {
       @t.str v1
     }
-    class MC2 {
+    @model class C2 {
       @t.str v2
     }
-    class MWithId {
+    @model class WithId {
       @t.id id
     }
-    class MWithIdNum {
+    @model class WithIdNum {
       @t.idNum idNum
     }
-    const C1 = model(MC1)
-    const C2 = model(MC2)
-    const WithId = model(MWithId)
-    const WithIdNum = model(MWithIdNum)
 
-    class MBase {
+    @model class Base {
       @t.id id
       @WithIdNum withIdNum
       @t.str str
@@ -48,7 +45,6 @@ describe('basic', () => {
       @t.null null
       @t.late(() => t.str) late
     }
-    const Base = model(MBase)
 
     const base = Base.create({
       id: 'id',
@@ -136,22 +132,22 @@ describe('basic', () => {
   })
 
   it('named model', () => {
-    const Base = model('User')(class {})
+    @model('User') class Base {
+      @t.str str = '123'
+    }
 
     const base = Base.create()
     getMembers(base).name.should.be.equal('User')
   })
 
   it('auto model', () => {
-    class MBase {
+    @model({auto: true}) class Base {
       @t.str str = 'str'
     }
-    const Base = model({auto: true})(MBase)
 
-    class MContainer {
+    @model class Container {
       @Base base
     }
-    const Container = model(MContainer)
 
     const cont = Container.create()
     cont.should.have.property('base')
@@ -159,10 +155,9 @@ describe('basic', () => {
   })
 
   it('prop', () => {
-    class MBase {
+    @model class Base {
       @prop(t.str) prop
     }
-    const Base = model(MBase)
 
     const base = Base.create({
       prop: 'prop',
@@ -172,24 +167,22 @@ describe('basic', () => {
   })
 
   it('default value', () => {
-    class MBase {
+    @model class Base {
       @t.str str = 'str'
     }
-    const Base = model(MBase)
 
     const base = Base.create()
     base.should.have.property('str').which.is.equal('str')
   })
 
   it('view', () => {
-    class MBase {
+    @model class Base {
       @t.str str
 
       get view() {
         return this.str
       }
     }
-    const Base = model(MBase)
 
     const base = Base.create({
       str: 'str',
@@ -199,14 +192,13 @@ describe('basic', () => {
   })
 
   it('view with args', () => {
-    class MBase {
+    @model class Base {
       @t.str str
 
       @view view(prefix) {
         return prefix + this.str
       }
     }
-    const Base = model(MBase)
 
     const base = Base.create({
       str: 'str',
@@ -216,14 +208,13 @@ describe('basic', () => {
   })
 
   it('action', () => {
-    class MBase {
+    @model class Base {
       @t.maybe(t.str) str
 
       setStr(str) {
         this.str = str
       }
     }
-    const Base = model(MBase)
 
     const base = Base.create()
     base.setStr('str')
@@ -232,7 +223,7 @@ describe('basic', () => {
   })
 
   it('flow', async () => {
-    class MBase {
+    @model class Base {
       @t.maybe(t.str) str
 
       *setStr(str) {
@@ -240,7 +231,6 @@ describe('basic', () => {
         this.str = str
       }
     }
-    const Base = model(MBase)
 
     const base = Base.create()
     await base.setStr('str')
@@ -249,7 +239,7 @@ describe('basic', () => {
   })
 
   it('throw if new', () => {
-    const Base = model(class {});
+    @model class Base {}
     (() => {
       new Base()
     }).should.throw()
@@ -261,13 +251,13 @@ describe('basic', () => {
   })
 
   it('getMstType model', () => {
-    const Base = model(class {});
+    @model class Base {}
     const mstType = getMstType(Base)
     mstType.should.have.property('isType').which.is.true()
   })
 
   it('extend model with props()', () => {
-    const Base = model(class {})
+    @model class Base {}
     const WithStr = Base.props({
       str: t.str,
     })
@@ -278,10 +268,9 @@ describe('basic', () => {
   })
 
   it('extend model with actions()', async () => {
-    class MBase {
+    @model class Base {
       @t.str str
     }
-    const Base = model(MBase)
     const WithActions = Base.actions(() => ({
       setStr(str) {
         this.str = str
@@ -290,7 +279,7 @@ describe('basic', () => {
       *setStrWithTimeout(str) {
         yield timeout(1)
         this.str = str
-      },
+      }
     }))
     const store = WithActions.create({
       str: '',

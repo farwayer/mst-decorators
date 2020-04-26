@@ -1,2 +1,0 @@
-import './js'
-import './ts'

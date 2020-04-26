@@ -1,9 +1,10 @@
+import 'should'
 import {model, str} from '../../src'
 
 
 describe('listeners', () => {
   it('onSnapshot', done => {
-    @model class BaseUser {
+    class MBaseUser {
       @str login
 
       setLogin(login) {
@@ -15,6 +16,7 @@ describe('listeners', () => {
         done()
       }
     }
+    const BaseUser = model(MBaseUser)
 
     const user = BaseUser.create({
       login: 'login',
@@ -23,7 +25,7 @@ describe('listeners', () => {
   })
 
   it('onPatch', done => {
-    @model class BaseUser {
+    class MBaseUser {
       @str login
 
       setLogin(login) {
@@ -38,6 +40,7 @@ describe('listeners', () => {
         done()
       }
     }
+    const BaseUser = model(MBaseUser)
 
     const user = BaseUser.create({
       login: 'login',
@@ -46,7 +49,7 @@ describe('listeners', () => {
   })
 
   it('onAction', done => {
-    @model class BaseUser {
+    class MBaseUser {
       @str login
 
       setLogin(login) {
@@ -58,6 +61,7 @@ describe('listeners', () => {
         done()
       }
     }
+    const BaseUser = model(MBaseUser)
 
     const user = BaseUser.create({
       login: 'login',

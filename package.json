@@ -6,12 +6,12 @@
   "repository": "farwayer/mst-decorators",
   "author": "farwayer <farwayer@gmail.com>",
   "scripts": {
-    "prepack": "yarn clean && yarn cjs && yarn esm",
+    "prepack": "yarn clean && yarn cjs && yarn esm && yarn test",
     "cjs": "babel --out-dir cjs src",
     "esm": "ESM=1 babel --out-dir esm src",
     "clean": "rm -rf cjs esm",
-    "test": "nyc mocha",
-    "cover": "nyc report --reporter=text-lcov | coveralls"
+    "test": "jest",
+    "cover": "jest --coverage --coverageReporters=text-lcov | coveralls"
   },
   "main": "cjs",
   "module": "esm",
@@ -20,7 +20,7 @@
   "dependencies": {
     "@babel/runtime": "^7.6.0",
     "decorating": "^1.1.0",
-    "istp": "^1.0.0",
+    "istp": "^1.0.1",
     "rambda": "^3.1.0"
   },
   "peerDependencies": {
@@ -33,16 +33,13 @@
     "@babel/plugin-proposal-decorators": "^7.6.0",
     "@babel/plugin-transform-runtime": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
-    "@babel/register": "^7.6.0",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "^12.7.5",
+    "@types/jest": "^25.2.1",
     "coveralls": "^3.0.6",
+    "jest": "^25.4.0",
     "mobx": "^5.13.0",
     "mobx-state-tree": "^3.14.1",
-    "mocha": "^6.2.0",
-    "nyc": "^14.1.1",
     "should": "^13.2.3",
-    "ts-node": "^8.4.1",
+    "ts-jest": "^25.4.0",
     "typescript": "^3.6.3"
   },
   "keywords": [

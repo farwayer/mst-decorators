@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "target": "es6",
-    "experimentalDecorators": true,
-    "types": ["should", "mocha", "node"]
+    "esModuleInterop": true,
+    "experimentalDecorators": true
   }
 }
