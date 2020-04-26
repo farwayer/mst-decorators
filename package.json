@@ -17,6 +17,7 @@
   "module": "esm",
   "react-native": "src",
   "types": "src/index.d.ts",
+  "sideEffects": false,
   "dependencies": {
     "decorating": "^1.2.2",
     "istp": "^1.0.1",
