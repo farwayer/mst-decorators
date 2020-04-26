@@ -1,5 +1,11 @@
 ## Changelog
 
+### 2.1.2
+
+- optimize creating objects with many views
+- @babel/runtime
+- sideEffects: false
+
 ### 2.1.1
 
 - check if mst type already while converting type arguments
