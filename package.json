@@ -9,7 +9,7 @@
     "prepack": "yarn clean && yarn cjs && yarn esm && yarn test",
     "cjs": "babel --out-dir cjs src",
     "esm": "ESM=1 babel --out-dir esm src",
-    "clean": "rm -rf cjs esm",
+    "clean": "rimraf cjs esm",
     "test": "jest",
     "cover": "jest --coverage --coverageReporters=text-lcov | coveralls"
   },
@@ -38,6 +38,7 @@
     "jest": "^25.4.0",
     "mobx": "^5.15.4",
     "mobx-state-tree": "^3.16.0",
+    "rimraf": "^3.0.2",
     "should": "^13.2.3",
     "ts-jest": "^25.4.0",
     "typescript": "^3.8.3"
