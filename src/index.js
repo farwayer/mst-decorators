@@ -271,21 +271,22 @@ function convertValuesToMst(obj) {
 }
 
 function viewBinder(descs) {
-  return obj => (
-    Object.entries(descs).reduce((fns, [key, desc]) => {
-      desc = descBind(obj, desc, 'get')
-      desc = descBind(obj, desc, 'set')
-      desc = descBind(obj, desc, 'value')
-      desc = {...desc, enumerable: true}
-      return Object.defineProperty(fns, key, desc)
-    }, {})
-  )
-}
+  return obj => {
+    let resDescs = {}
+    for (const key in descs) {
+      const {get, set, value} = descs[key]
+      const desc = {enumerable: true}
 
-function descBind(obj, desc, fnName) {
-  const fn = desc[fnName]
-  if (!isFn(fn)) return desc
-  return {...desc, [fnName]: fn.bind(obj)}
+      // views can be functions only
+      if (get) desc.get = get.bind(obj)
+      if (set) desc.set = set.bind(obj)
+      if (value) desc.value = value.bind(obj)
+
+      resDescs[key] = desc
+    }
+
+    return Object.defineProperties({}, resDescs)
+  }
 }
 
 function tagKey(tag) {
