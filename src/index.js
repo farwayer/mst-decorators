@@ -260,8 +260,8 @@ function modelActions(type) {
     const actions = getActions(store)
 
     return rdMap(action => {
-      action = action.bind(store)
-      return isGen(action) ? mstFlow(action) : action
+      const fn = action.bind(store)
+      return isGen(action) ? mstFlow(fn) : fn
     })(actions)
   })
 }
