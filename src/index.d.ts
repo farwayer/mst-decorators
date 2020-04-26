@@ -4,15 +4,18 @@ import {
   ModelSnapshotType,
   ModelActions,
   Instance,
+  IAnyType,
 } from 'mobx-state-tree'
+
+type InstanceType_IfConstructor<T> = T extends new (...args: any) => infer R ? R : any;
 
 export declare type ModelDecorator<T extends Function> = T & Model<T> & PropertyDecorator
 
 export declare interface Model<T extends Function> {
-  create(snapshot?: ModelSnapshotType<ModelProperties>, env?: any): IStateTreeNode<IType<any, unknown, any>> & InstanceType<T>
+  create(snapshot?: ModelSnapshotType<ModelProperties>, env?: any): IStateTreeNode<IType<any, unknown, any>> & InstanceType_IfConstructor<T>
   is(thing: any): boolean
-  props<A extends ModelProperties>(props: object): ModelDecorator<A>
-  actions<A extends ModelActions>(fn: (self: Instance<this>) => A): ModelDecorator<A>
+  props<A extends (self: Instance<this>) => ModelProperties>(props: object): ModelDecorator<A>
+  actions<A extends (self: Instance<this>) => ModelActions>(fn: A): ModelDecorator<A>
 }
 
 export declare type ModelOptions = {
@@ -114,4 +117,4 @@ export declare const types: {
   setter: typeof setter,
 }
 
-export declare function getMstType(type: any): IType
+export declare function getMstType(type: any): IAnyType
