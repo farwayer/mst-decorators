@@ -1,12 +1,3 @@
-export function setPrototypeOf(target, proto) {
-  if (Object.setPrototypeOf) {
-    return Object.setPrototypeOf(target, proto)
-  }
-
-  target.__proto__ = proto
-  return target
-}
-
 export function getOwnPropertyDescriptors(obj) {
   if (Object.getOwnPropertyDescriptors) {
     return Object.getOwnPropertyDescriptors(obj)

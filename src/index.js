@@ -9,7 +9,7 @@ import {
 } from 'mobx-state-tree'
 import {merge, pick, omit, pipe, map as rdMap, filter, forEach, isEmpty} from 'rambda'
 import {propertyDecorator, classDecorator, isPropertyDecorator} from 'decorating'
-import {setPrototypeOf, getOwnPropertyDescriptors, capitalize} from './utils'
+import {getOwnPropertyDescriptors, capitalize} from './utils'
 import {isFn, isDef, isObj, isStr, isInt, isNul, isGen} from 'istp'
 
 
@@ -102,7 +102,7 @@ export const model = classDecorator((
     }
   })
 
-  return setPrototypeOf(Constructor, Class)
+  return Object.setPrototypeOf(Constructor, Class)
 })
 
 export const prop = propertyTagger(PropsKey)
