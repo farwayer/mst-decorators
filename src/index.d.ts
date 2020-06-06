@@ -70,6 +70,10 @@ export declare const snapProc: typeof snapshotProcessor
 
 // extra
 export declare const jsonDate: PropertyDecorator
+export declare const weakReference: PropertyDecorator
+export declare const weakRef: typeof weakReference
+export declare const valuesEnumeration: PropertyDecorator
+export declare const valuesEnum: typeof valuesEnumeration
 export declare const setter: PropertyDecorator
 
 export declare const types: {
@@ -114,6 +118,10 @@ export declare const types: {
   snapProc: typeof snapProc,
 
   jsonDate: typeof jsonDate,
+  valuesEnumeration: typeof valuesEnumeration,
+  valuesEnum: typeof valuesEnum,
+  weakReference: typeof weakReference,
+  weakRef: typeof weakRef,
   setter: typeof setter,
 }
 
