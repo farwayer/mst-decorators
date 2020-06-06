@@ -147,31 +147,6 @@ export const _undefined = createTypeDecorator(MstTypes.undefined)
 export const _null = createTypeDecorator(MstTypes.null)
 export const snapshotProcessor = createTypeDecorator(MstTypes.snapshotProcessor)
 
-// alias
-export const ref = reference
-export const safeRef = safeReference
-export const opt = optional
-export const str = string
-export const bool = boolean
-export const num = number
-export const int = integer
-export const id = identifier
-export const idNum = identifierNumber
-export const undef = _undefined
-export const nul = _null
-export const snapProc = snapshotProcessor
-
-export const types = {
-  enumeration, model: _model, compose, custom, reference, safeReference,
-  union, optional, literal, maybe, maybeNull, refinement,
-  string, boolean, number, integer, date, map, array, frozen,
-  identifier, identifierNumber, late, undefined: _undefined, null: _null,
-  snapshotProcessor,
-  ref, safeRef, opt, str, bool, num, int, id, idNum, undef, nul,
-  snapProc,
-  jsonDate,
-}
-
 export const setter = propertyDecorator((
   target, prop, desc,
   {
@@ -217,8 +192,33 @@ export const valuesEnumeration = (obj, strict = false) => {
   return strict ? type : union(type, str)
 }
 
+// alias
+export const ref = reference
+export const safeRef = safeReference
+export const opt = optional
+export const str = string
+export const bool = boolean
+export const num = number
+export const int = integer
+export const id = identifier
+export const idNum = identifierNumber
+export const undef = _undefined
+export const nul = _null
+export const snapProc = snapshotProcessor
+
 export const weakRef = weakReference
 export const valuesEnum = valuesEnumeration
+
+export const types = {
+  enumeration, model: _model, compose, custom, reference, safeReference,
+  union, optional, literal, maybe, maybeNull, refinement,
+  string, boolean, number, integer, date, map, array, frozen,
+  identifier, identifierNumber, late, undefined: _undefined, null: _null,
+  snapshotProcessor,
+  ref, safeRef, opt, str, bool, num, int, id, idNum, undef, nul, snapProc,
+  jsonDate, weakReference, valuesEnumeration,
+  weakRef, valuesEnum,
+}
 
 
 // private
