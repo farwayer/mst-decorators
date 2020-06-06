@@ -7,10 +7,16 @@ import {
   onAction as mstOnAction,
   isType as mstIsType,
 } from 'mobx-state-tree'
-import {merge, pick, omit, pipe, map as rdMap, filter, forEach, isEmpty} from 'rambda'
-import {propertyDecorator, classDecorator, isPropertyDecorator} from 'decorating'
-import {getOwnPropertyDescriptors, capitalize} from './utils'
+import {
+  merge, pick, omit, pipe, map as rdMap, filter, forEach, isEmpty, reduce,
+  toPairs, prop as rdProp,
+} from 'rambda'
 import {isFn, isDef, isObj, isStr, isInt, isNul, isGen} from 'istp'
+import {
+  propertyDecorator, classDecorator, isPropertyDecorator,
+} from 'decorating'
+import {getOwnPropertyDescriptors, capitalize} from './utils'
+import {whenFn} from './fns'
 
 
 const TypeKey = tagKey('type')
@@ -20,6 +26,8 @@ const ExcludeKeys = [
   'constructor', 'onPatch', 'onSnapshot', 'onAction',
   TypeKey, PropsKey, ViewsKey,
 ]
+
+export const getMstType = rdProp(TypeKey)
 
 export const model = classDecorator((
   Class,
@@ -88,7 +96,7 @@ export const model = classDecorator((
       if (onSnapshot) mstOnSnapshot(obj, onSnapshot.bind(obj))
       if (onPatch) mstOnPatch(obj, onPatch.bind(obj))
       if (onAction) mstOnAction(obj, onAction.bind(obj))
-    }
+    },
   }))
 
   const modelDecorator = prop(Model)
@@ -185,9 +193,7 @@ export const setter = propertyDecorator((
 ) => {
   target[name] = function (value) {
     if (isDef(customValue)) {
-      value = isFn(customValue)
-        ? customValue.call(this, value)
-        : customValue
+      value = whenFn(customValue => customValue.call(this, value))
     }
 
     this[prop] = isDef(value) && clone
@@ -195,11 +201,6 @@ export const setter = propertyDecorator((
       : value
   }
 })
-
-export function getMstType(type) {
-  return type && type[TypeKey]
-}
-
 
 function propertyTagger(key) {
   return propertyDecorator((target, property, desc, ...args) => {
@@ -217,9 +218,7 @@ function createTypeDecorator(
       return prop(this)(...args)
     }
 
-    const decoratorType = isFn(type)
-      ? type(...args.map(transformArg))
-      : type
+    const decoratorType = whenFn(type => type(...args.map(transformArg)))(type)
     return assignType(decoratorType, decorator)
   })
 }
@@ -257,36 +256,40 @@ function modelProps(type) {
 
 function modelActions(type) {
   return getActions => type.actions(store => {
-    const actions = getActions(store)
-
-    return rdMap(action => {
+    const bindAction = action => {
       const fn = action.bind(store)
       return isGen(action) ? mstFlow(fn) : fn
-    })(actions)
+    }
+
+    const actions = getActions(store)
+    return rdMap(bindAction, actions)
   })
 }
 
 function convertValuesToMst(obj) {
-  return rdMap(val => getMstType(val) || val)(obj)
+  return rdMap(val => getMstType(val) || val, obj)
 }
 
 function viewBinder(descs) {
-  return obj => {
-    let resDescs = {}
-    for (const key in descs) {
-      const {get, set, value} = descs[key]
-      const desc = {enumerable: true}
+  const getDescsReducer = obj => (resDescs, [key, desc]) => {
+    const {get, set, value} = desc
+    const newDesc = {enumerable: true}
 
-      // views can be functions only
-      if (get) desc.get = get.bind(obj)
-      if (set) desc.set = set.bind(obj)
-      if (value) desc.value = value.bind(obj)
+    // views can be functions only
+    if (get) newDesc.get = get.bind(obj)
+    if (set) newDesc.set = set.bind(obj)
+    if (value) newDesc.value = value.bind(obj)
 
-      resDescs[key] = desc
-    }
-
-    return Object.defineProperties({}, resDescs)
+    resDescs[key] = newDesc
+    return resDescs
   }
+  const defineViews = descs => Object.defineProperties({}, descs)
+
+  return obj => pipe(
+    toPairs,
+    reduce(getDescsReducer(obj), {}),
+    defineViews,
+  )(descs)
 }
 
 function tagKey(tag) {
