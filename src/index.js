@@ -12,7 +12,7 @@ import {
   merge, pick, omit, pipe, map as rdMap, filter, forEach, isEmpty, reduce,
   toPairs, prop as rdProp, when,
 } from 'rambda'
-import {isFn, isDef, isObj, isStr, isInt, isNul, isGen} from 'istp'
+import {isFn, isDef, isObj, isStr, isInt, isGen, isDate, isNil} from 'istp'
 import {
   propertyDecorator, classDecorator, isPropertyDecorator,
 } from 'decorating'
@@ -172,8 +172,8 @@ export const jsonDate = custom({
   name: 'JSONDate',
   fromSnapshot: val => isStr(val) || isInt(val) ? new Date(val) : val,
   toSnapshot: date => date.toJSON(),
-  isTargetType: date => date instanceof Date,
-  getValidationMessage: val => isNul(val) || !isDef(val)
+  isTargetType: isDate,
+  getValidationMessage: val => isNil(val)
     ? "null or undefined is not a valid value for JSONDate"
     : "",
 })
