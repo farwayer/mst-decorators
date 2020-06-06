@@ -6,10 +6,11 @@ import {
   onPatch as mstOnPatch,
   onAction as mstOnAction,
   isType as mstIsType,
+  resolveIdentifier, getRoot, isStateTreeNode, getIdentifier,
 } from 'mobx-state-tree'
 import {
   merge, pick, omit, pipe, map as rdMap, filter, forEach, isEmpty, reduce,
-  toPairs, prop as rdProp,
+  toPairs, prop as rdProp, when,
 } from 'rambda'
 import {isFn, isDef, isObj, isStr, isInt, isNul, isGen} from 'istp'
 import {
@@ -160,17 +161,6 @@ export const undef = _undefined
 export const nul = _null
 export const snapProc = snapshotProcessor
 
-// extra
-export const jsonDate = custom({
-  name: 'JSONDate',
-  fromSnapshot: val => isStr(val) || isInt(val) ? new Date(val) : val,
-  toSnapshot: date => date.toJSON(),
-  isTargetType: date => date instanceof Date,
-  getValidationMessage: val => isNul(val) || !isDef(val)
-    ? "null or undefined is not a valid value for JSONDate"
-    : "",
-})
-
 export const types = {
   enumeration, model: _model, compose, custom, reference, safeReference,
   union, optional, literal, maybe, maybeNull, refinement,
@@ -202,6 +192,36 @@ export const setter = propertyDecorator((
   }
 })
 
+// extra
+export const jsonDate = custom({
+  name: 'JSONDate',
+  fromSnapshot: val => isStr(val) || isInt(val) ? new Date(val) : val,
+  toSnapshot: date => date.toJSON(),
+  isTargetType: date => date instanceof Date,
+  getValidationMessage: val => isNul(val) || !isDef(val)
+    ? "null or undefined is not a valid value for JSONDate"
+    : "",
+})
+
+export const weakReference = type => maybe(ref(type, {
+  get(id, parent) {
+    return resolveIdentifier(getMstType(type), getRoot(parent), id)
+  },
+  set(id) {
+    return when(isStateTreeNode, getIdentifier)(id)
+  },
+}))
+
+export const valuesEnumeration = (obj, strict = false) => {
+  const type = enumeration(Object.values(obj))
+  return strict ? type : union(type, str)
+}
+
+export const weakRef = weakReference
+export const valuesEnum = valuesEnumeration
+
+
+// private
 function propertyTagger(key) {
   return propertyDecorator((target, property, desc, ...args) => {
     target[key] = target[key] || {}
