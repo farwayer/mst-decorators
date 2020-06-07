@@ -1,6 +1,7 @@
 import 'should'
 import {model, str, num, maybe} from '../../src'
 import {timeout} from '../utils'
+import {types as MstTypes} from 'mobx-state-tree'
 
 
 describe('extend', () => {
@@ -91,5 +92,49 @@ describe('extend', () => {
     await user.setLogin('user')
 
     user.should.have.property('login').which.is.equal('user1')
+  })
+
+  it('extend from model inited with props', async () => {
+    const BaseUser = model({
+      login: str,
+      password: str,
+    })
+
+    class MUser extends BaseUser {
+      @str firstName
+    }
+    const User = model(MUser)
+
+    const user = User.create({
+      login: 'user',
+      password: '1234',
+      firstName: 'Name',
+    })
+
+    user.should.have.property('login').which.is.equal('user')
+    user.should.have.property('password').which.is.equal('1234')
+    user.should.have.property('firstName').which.is.equal('Name')
+  })
+
+  it('extend from model inited with MST model', async () => {
+    const BaseUser = model(MstTypes.model({
+      login: MstTypes.string,
+      password: MstTypes.string,
+    }))
+
+    class MUser extends BaseUser {
+      @str firstName
+    }
+    const User = model(MUser)
+
+    const user = User.create({
+      login: 'user',
+      password: '1234',
+      firstName: 'Name',
+    })
+
+    user.should.have.property('login').which.is.equal('user')
+    user.should.have.property('password').which.is.equal('1234')
+    user.should.have.property('firstName').which.is.equal('Name')
   })
 })

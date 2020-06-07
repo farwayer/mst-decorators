@@ -18,7 +18,7 @@ export function propertyTagger(key) {
 
 export function createTypeDecorator(
   type,
-  transformArgs = transformArgsToMst,
+  transformArgs = transformToMst,
 ) {
   function decorator(...args) {
     if (isPropertyDecorator(args)) {
@@ -35,14 +35,14 @@ export function createTypeDecorator(
   return bindType(decorator, type)
 }
 
-function transformArgsToMst(args) {
+export function transformToMst(args) {
   return map(arg => {
     if (isType(arg)) return arg
 
     const mstType = getMstType(arg)
     if (mstType) return mstType
 
-    return isObj(arg) ? convertValuesToMst(arg) : arg
+    return isObj(arg) ? transformToMst(arg) : arg
   }, args)
 }
 

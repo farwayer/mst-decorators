@@ -103,7 +103,7 @@ describe('basic', () => {
   })
 
   it('model type', () => {
-    const User = t.model('User', {
+    const User = model('User', {
       str: MstTypes.string,
     })
     const user = User.create({
@@ -111,7 +111,7 @@ describe('basic', () => {
     })
     user.should.have.property('str').which.is.equal('str')
 
-    const User2 = t.model('User2', {
+    const User2 = model('User2', {
       str: t.str,
     })
     const user2 = User2.create({
@@ -121,7 +121,7 @@ describe('basic', () => {
   })
 
   it('model type mst obj', () => {
-    let User = t.model({})
+    let User = model({})
     User = t.compose(User, MstTypes.model({
       str: MstTypes.string,
     }))
@@ -131,27 +131,13 @@ describe('basic', () => {
     user.should.have.property('str').which.is.equal('str')
   })
 
-  it('named model', () => {
+  it('named model', () =>  {
     @model('User') class Base {
       @t.str str = '123'
     }
 
     const base = Base.create()
     getMembers(base).name.should.be.equal('User')
-  })
-
-  it('auto model', () => {
-    @model({auto: true}) class Base {
-      @t.str str = 'str'
-    }
-
-    @model class Container {
-      @Base base
-    }
-
-    const cont = Container.create()
-    cont.should.have.property('base')
-    cont.base.str.should.be.equal('str')
   })
 
   it('prop', () => {
@@ -290,5 +276,39 @@ describe('basic', () => {
 
     await store.setStrWithTimeout('str2')
     store.should.have.property('str').which.is.equal('str2')
+  })
+
+  it('init model as MST model', async () => {
+    const Base = model({
+      str: MstTypes.string,
+    })
+
+    const store = Base.create({
+      str: 'str'
+    })
+    store.should.have.property('str').which.is.equal('str')
+  })
+
+  it('init model as MST model but with our types', async () => {
+    const Base = model({
+      str: t.str,
+    })
+
+    const store = Base.create({
+      str: 'str'
+    })
+    store.should.have.property('str').which.is.equal('str')
+  })
+
+  it('init model with MST model', async () => {
+    const mstModel = MstTypes.model({
+      str: MstTypes.string,
+    })
+    const Base = model(mstModel)
+
+    const store = Base.create({
+      str: 'str'
+    })
+    store.should.have.property('str').which.is.equal('str')
   })
 })

@@ -6,7 +6,6 @@ export * from './extra'
 export const types = {
   ...basic,
   ...extra,
-  model: basic._model,
   undefined: basic._undefined,
   null: basic._null,
 }

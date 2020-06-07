@@ -1,5 +1,28 @@
 ## Changelog
 
+### 3.0.0
+
+**Breaking:**
+- options argument with `auto` removed from `model()`
+- MST `types.model` (and `_model`) removed. Model can be initialized with object
+like MST model or with MST model now.
+
+Other:
+- add missed `jsonDate` to exported `types`
+- weakRef  
+Like `safeRef` but do not set value to `undefined` if reference node not found  
+- valuesEnum
+```js
+export const AddressType = {
+  Legal: 'legal',
+  Actual: 'actual',
+  Postal: 'postal',
+}
+
+const strict = true // no other types can be
+const AddressTypeEnum = valuesEnum(AddressType, strict)
+```
+
 ### 2.1.3
 
 - fix incorrect gen check

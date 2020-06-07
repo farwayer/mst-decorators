@@ -3,17 +3,20 @@ import {
   onSnapshot as mstOnSnapshot,
   onPatch as mstOnPatch,
   onAction as mstOnAction,
+  isModelType,
 } from 'mobx-state-tree'
 import {
   merge, pick, omit, pipe, map as rdMap, filter, forEach, isEmpty,
 } from 'rambda'
-import {isFn, isObj} from 'istp'
-import {classDecorator, isPropertyDecorator} from 'decorating'
+import {isFn, isObj, isStr} from 'istp'
+import {isPropertyDecorator} from 'decorating'
 import {getOwnPropertyDescriptors} from './legacy'
 import {
   TypeKey, getMstType, tagKey, extractTaggedProps, convertValuesToMst,
   propertyTagger, createTypeDecorator, bindType, modelActions, viewBinder,
+  transformToMst,
 } from './utils'
+import {argumentsToArray} from './fns'
 
 
 const PropsKey = tagKey('props')
@@ -26,75 +29,88 @@ const ExcludeKeys = [
 export const prop = propertyTagger(PropsKey)
 export const view = propertyTagger(ViewsKey)
 
-export const model = classDecorator((
+export function model(
   Class,
   name = Class.name,
-  options = {auto: false},
-) => {
-  if (isObj(name)) {
-    options = merge(options, name)
-    name = Class.name
+) {
+  const mstModelPassed = isModelType(Class)
+
+  // obj with type as values
+  if (
+    !mstModelPassed &&
+    (isObj(Class) || isStr(Class) && isObj(name))
+  ) {
+    const args = transformToMst(argumentsToArray(arguments))
+    const mstModel = MstTypes.model(...args)
+    return model(mstModel)
   }
 
-  const {preProcessSnapshot, postProcessSnapshot} = Class
-  // TS class property initializers and defaults from constructor
-  const values = new Class()
-  const {onSnapshot, onPatch, onAction} = values
+  if (!mstModelPassed && !isFn(Class)) {
+    return _Class => model(_Class, ...argumentsToArray(arguments))
+  }
 
-  let props = extractTaggedProps(Class, PropsKey)
-  props = pipe(
-    rdMap(args => args[0]),
-    convertValuesToMst,
-  )(props)
+  let Model
 
-  const propKeys = Object.keys(props)
-  const viewKeys = Object.keys(extractTaggedProps(Class, ViewsKey))
-  const ownKeys = Object.getOwnPropertyNames(values)
-  const omitKeys = ExcludeKeys.concat(propKeys).concat(viewKeys)
-  const descs = getOwnPropertyDescriptors(Class.prototype)
+  if (mstModelPassed) {
+    Model = Class
+  }
+  else {
+    const {preProcessSnapshot, postProcessSnapshot} = Class
+    // TS class property initializers and defaults from constructor
+    const values = new Class()
+    const {onSnapshot, onPatch, onAction} = values
 
-  const views = pick(viewKeys, descs)
-  const volatile = omit(omitKeys, pick(ownKeys, values))
-  const actions = {}
+    let props = extractTaggedProps(Class, PropsKey)
+    props = pipe(
+      rdMap(args => args[0]),
+      convertValuesToMst,
+    )(props)
 
-  pipe(
-    filter((desc, key) => !omitKeys.includes(key)),
-    forEach((desc, key) => {
-      const {get, set, value} = desc
-      if (get || set) return views[key] = desc
-      if (isFn(value)) return actions[key] = value
-    }),
-  )(descs)
+    const propKeys = Object.keys(props)
+    const viewKeys = Object.keys(extractTaggedProps(Class, ViewsKey))
+    const ownKeys = Object.getOwnPropertyNames(values)
+    const omitKeys = ExcludeKeys.concat(propKeys).concat(viewKeys)
+    const descs = getOwnPropertyDescriptors(Class.prototype)
 
-  const mstType = getMstType(Class) // es6 extending
-  let Model = mstType
-    ? mstType.named(name).props(props)
-    : MstTypes.model(name, props)
+    const views = pick(viewKeys, descs)
+    const volatile = omit(omitKeys, pick(ownKeys, values))
+    const actions = {}
 
-  Model = isEmpty(volatile) ? Model : Model.volatile(() => volatile)
-  Model = isEmpty(actions) ? Model : modelActions(Model)(() => actions)
-  Model = isEmpty(views) ? Model : Model.views(viewBinder(views))
+    pipe(
+      filter((desc, key) => !omitKeys.includes(key)),
+      forEach((desc, key) => {
+        const {get, set, value} = desc
+        if (get || set) return views[key] = desc
+        if (isFn(value)) return actions[key] = value
+      }),
+    )(descs)
 
-  Model = Model.preProcessSnapshot(snapshot => {
-    snapshot = preProcessSnapshot ? preProcessSnapshot(snapshot) : snapshot
-    if (!isObj(snapshot)) {
-      if (!options.auto) return snapshot
-      snapshot = {}
+    const mstType = getMstType(Class) // es6 extending
+    Model = mstType
+      ? mstType.named(name).props(props)
+      : MstTypes.model(name, props)
+
+    Model = isEmpty(volatile) ? Model : Model.volatile(() => volatile)
+    Model = isEmpty(actions) ? Model : modelActions(Model)(() => actions)
+    Model = isEmpty(views) ? Model : Model.views(viewBinder(views))
+
+    Model = Model.preProcessSnapshot(snapshot => {
+      snapshot = preProcessSnapshot ? preProcessSnapshot(snapshot) : snapshot
+      return merge(values, snapshot)
+    })
+
+    if (postProcessSnapshot) {
+      Model = Model.postProcessSnapshot(postProcessSnapshot)
     }
-    return merge(values, snapshot)
-  })
 
-  if (postProcessSnapshot) {
-    Model = Model.postProcessSnapshot(postProcessSnapshot)
+    Model = Model.actions(obj => ({
+      afterCreate() {
+        if (onSnapshot) mstOnSnapshot(obj, onSnapshot.bind(obj))
+        if (onPatch) mstOnPatch(obj, onPatch.bind(obj))
+        if (onAction) mstOnAction(obj, onAction.bind(obj))
+      },
+    }))
   }
-
-  Model = Model.actions(obj => ({
-    afterCreate() {
-      if (onSnapshot) mstOnSnapshot(obj, onSnapshot.bind(obj))
-      if (onPatch) mstOnPatch(obj, onPatch.bind(obj))
-      if (onAction) mstOnAction(obj, onAction.bind(obj))
-    },
-  }))
 
   const modelDecorator = prop(Model)
   const Constructor = bindType(function (...args) {
@@ -107,11 +123,10 @@ export const model = classDecorator((
     }
   }, Model)
 
-  return Object.setPrototypeOf(Constructor, Class)
-})
+  return Object.setPrototypeOf(Constructor, mstModelPassed ? () => {} : Class)
+}
 
 export const enumeration = createTypeDecorator(MstTypes.enumeration)
-export const _model = createTypeDecorator(MstTypes.model)
 export const compose = createTypeDecorator(MstTypes.compose)
 export const custom = createTypeDecorator(MstTypes.custom)
 export const reference = createTypeDecorator(MstTypes.reference)
