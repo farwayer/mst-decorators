@@ -96,10 +96,6 @@ export const model = classDecorator((
     if (isPropertyDecorator(args)) {
       return modelDecorator(...args)
     }
-
-    if (this instanceof Constructor) {
-      throw new Error(`You should use ${name}.create() to instantiate object`)
-    }
   })
 
   return Object.setPrototypeOf(Constructor, Class)
