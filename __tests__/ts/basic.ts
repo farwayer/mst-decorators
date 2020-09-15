@@ -249,13 +249,6 @@ describe('basic', () => {
     base.should.have.property('str').which.is.equal('str')
   })
 
-  it('throw if new', () => {
-    const Base = model(class {});
-    (() => {
-      new Base()
-    }).should.throw()
-  })
-
   it('getMstType basic type', () => {
     const mstType = getMstType(t.str)
     mstType.should.have.property('isType').which.is.true()
