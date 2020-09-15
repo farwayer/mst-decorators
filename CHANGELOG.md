@@ -1,5 +1,9 @@
 ## Changelog
 
+### 2.1.4
+
+- do not throw error if constructor was called (for extending)
+
 ### 2.1.3
 
 - fix incorrect gen check
