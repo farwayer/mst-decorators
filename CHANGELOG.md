@@ -1,5 +1,10 @@
 ## Changelog
 
+### 2.1.7
+
+- incorrect peer dep to MST 3
+
+
 ### 2.1.6
 
 - fix typo in `named()`
