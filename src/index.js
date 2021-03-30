@@ -232,14 +232,15 @@ function transformArgToMst(arg) {
 function assignType(type, fn) {
   type = {
     [TypeKey]: type,
-    create: type.create && type.create.bind(type),
-    is: type.is && type.is.bind(type),
-    validate: type.validate && type.validate.bind(type),
-    instantiate: type.instantiate && type.instantiate.bind(type),
+    create: type.create?.bind(type),
+    named: type.names?.bind(type),
+    is: type.is?.bind(type),
+    validate: type.validate?.bind(type),
+    instantiate: type.instantiate?.bind(type),
     props: type.props && modelProps(type),
     actions: type.actions && modelActions(type),
-    views: type.views && type.views.bind(type),
-    volatile: type.volatile && type.volatile.bind(type),
+    views: type.views?.bind(type),
+    volatile: type.volatile?.bind(type),
   }
   return Object.assign(fn.bind(type), type)
 }
