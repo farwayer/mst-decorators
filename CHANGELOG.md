@@ -1,5 +1,9 @@
 ## Changelog
 
+### 2.1.6
+
+- fix typo in `named()`
+
 ### 2.1.5
 
 - add `named()`
