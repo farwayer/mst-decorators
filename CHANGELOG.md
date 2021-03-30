@@ -1,5 +1,10 @@
 ## Changelog
 
+### 2.1.5
+
+- add `named()`
+- fix mst version `3.x.x`
+
 ### 2.1.4
 
 - do not throw error if constructor was called (for extending)
