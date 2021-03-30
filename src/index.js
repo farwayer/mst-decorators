@@ -233,7 +233,7 @@ function assignType(type, fn) {
   type = {
     [TypeKey]: type,
     create: type.create?.bind(type),
-    named: type.names?.bind(type),
+    named: type.named?.bind(type),
     is: type.is?.bind(type),
     validate: type.validate?.bind(type),
     instantiate: type.instantiate?.bind(type),
